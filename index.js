@@ -105,6 +105,52 @@ app.get('/feeds/youtube/good_work/json', async (req, res) => {
   res.send(json)
 })
 
+app.get('/feeds/youtube/max_fosh/json', async (req, res) => {
+  logRequestDetails(req)
+
+  const xmlAsObject = (
+    await getObjectFromRSS(
+      'https://www.youtube.com/feeds/videos.xml?channel_id=UCb31gOY6OD8ES0zP8M0GhAw'
+    )
+  ).feed
+
+  //builds items array
+  const items = xmlAsObject.entry.map((item) => {
+    const date = new Date(item.published._text)
+    const image = item['media:group']['media:thumbnail']._attributes.url
+
+    return {
+      title: item.title._text,
+      url: item.link._attributes.href,
+      external_url: item.link._attributes.href,
+      id: item.link._attributes.href,
+      summary: item['media:group']['media:description']._text || '',
+      date_published: date.toISOString(),
+      content_text: item['media:group']['media:description']._text,
+      content_html: `<p>${item['media:group']['media:description']._text}</p>`,
+      image,
+    }
+  })
+
+  //filters items that are shorts where title starts lowercase
+  let filteredItems = items.filter((item) => {
+    return !(item.title[0].toLowerCase() === item.title[0])
+  })
+
+  //adds feed specific metadata along with items array at end
+  const updatesObj = {
+    title: xmlAsObject.title._text,
+    home_page_url: xmlAsObject.link[1]._attributes.href,
+    feed_url: `https://rss-test.fly.dev${req.route.path}`,
+    description: `${xmlAsObject.title._text} channel`,
+    items: filteredItems,
+  }
+
+  //adds shared metadata
+  const json = updateJSONWithObject(updatesObj)
+  res.send(json)
+})
+
 app.get('/example', (req, res) => {
   logRequestDetails(req)
 
