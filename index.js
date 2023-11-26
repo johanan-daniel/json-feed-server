@@ -12,6 +12,12 @@ const port = 8080
 app.get('/feeds/bbc_travel/json', async (req, res) => {
   logRequestDetails(req)
 
+  if (Object.keys(req.query).length === 0) {
+    console.log('400 no query parameter provided')
+    res.status(400).send('a query parameter is required')
+    return
+  }
+
   const xmlAsObject = (
     await getObjectFromRSS('https://www.bbc.com/travel/feed.rss')
   ).rss.channel
@@ -52,6 +58,12 @@ app.get('/feeds/bbc_travel/json', async (req, res) => {
 
 app.get('/feeds/youtube/good_work/json', async (req, res) => {
   logRequestDetails(req)
+
+  if (Object.keys(req.query).length === 0) {
+    console.log('400 no query parameter provided')
+    res.status(400).send('a query parameter is required')
+    return
+  }
 
   const xmlAsObject = (
     await getObjectFromRSS(
@@ -105,6 +117,12 @@ app.get('/feeds/youtube/good_work/json', async (req, res) => {
 
 app.get('/feeds/youtube/max_fosh/json', async (req, res) => {
   logRequestDetails(req)
+
+  if (Object.keys(req.query).length === 0) {
+    console.log('400 no query parameter provided')
+    res.status(400).send('a query parameter is required')
+    return
+  }
 
   const xmlAsObject = (
     await getObjectFromRSS(
