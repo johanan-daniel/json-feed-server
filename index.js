@@ -16,8 +16,6 @@ app.get('/feeds/bbc_travel/json', async (req, res) => {
     await getObjectFromRSS('https://www.bbc.com/travel/feed.rss')
   ).rss.channel
 
-  console.log(xmlAsObject)
-
   //builds items array
   const items = xmlAsObject.item.map((item) => {
     const date = new Date(item.pubDate._text)
