@@ -74,7 +74,7 @@ const getObjectFromRSS = async (url) => {
     .then((res) => res.text())
     .then((str) => (xml = str))
 
-  return xml2js(xml, { compact: true }).rss.channel
+  return xml2js(xml, { compact: true })
 }
 
 const logRequestDetails = (req) => {
