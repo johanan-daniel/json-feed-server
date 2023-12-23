@@ -1,58 +1,6 @@
 /* https://github.com/nashwaan/xml-js */
 import { xml2js } from 'xml-js'
-
-const jsonTemplate = {
-  version: 'https://jsonfeed.org/version/1.1',
-  title: 'ENTER TITLE',
-  home_page_url: 'https://bing.com',
-  feed_url: 'https://rss-test.fly.dev/example',
-  description: 'ENTER DESCRIPTION',
-  icon: 'https://example.org/favicon-timeline-512x512.png',
-  favicon: 'https://example.org/favicon-sourcelist-64x64.png',
-  language: 'en-US',
-  items: [
-    {
-      id: '2',
-      content_text: 'This is a second item.',
-      url: 'https://example.org/second-item',
-      attachments: [
-        {
-          url: 'https://example.org/second-item/audio.ogg',
-          mime_type: 'audio/ogg',
-          title: 'Optional Title',
-          size_in_bytes: 31415927,
-          duration_in_seconds: 1800,
-        },
-      ],
-    },
-    {
-      id: 'required-unique-string-that-does-not-change: number, guid, url, etc.',
-      url: 'https://en.wikipedia.org/wiki/Tree',
-      external_url: 'https://en.wikipedia.org/w/index.php?title=JSON_Feed',
-      title: 'Optional Title',
-      content_html:
-        '<p>Optional content for the feed reader. You may also use content_text or both at the same time.</p>',
-      content_text: 'Optional text for simple feeds.',
-      summary: 'Optional summary of the item.',
-      image:
-        'https://s3-eu-west-1.amazonaws.com/blog-ecotree/blog/0001/01/ad46dbb447cd0e9a6aeecd64cc2bd332b0cbcb79.jpeg',
-      banner_image:
-        'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/apples-700x350-edfec3b.png',
-      date_published: '2021-10-25T19:30:00-01:00',
-      date_modified: '2021-10-26T19:45:00-01:00',
-      authors: [
-        {
-          name: 'Optional Author',
-          url: 'https://example.org/authors/optional-author',
-          avatar:
-            'https://example.org/authors/optional-author/avatar-512x512.png',
-        },
-      ],
-      tags: ['Optional Tag', 'Example'],
-      language: 'en-US',
-    },
-  ],
-}
+import jsonTemplate from './constants.js'
 
 const updateJSONWithObject = (input) => {
   const { title, home_page_url, feed_url, description, items } = input
@@ -77,13 +25,86 @@ const getObjectFromRSS = async (url) => {
   return xml2js(xml, { compact: true })
 }
 
-const logRequestDetails = (req) => {
+const logRequestDetails = (req, res, options = null) => {
+  console.log('')
   console.log(req.method, req.route.path, req.query)
+  let NOERROR = true
+  let ERROR = false
+
+  if (options == null) {
+    return NOERROR
+  } else {
+    if (options.checkForAnyParams && Object.keys(req.query).length === 0) {
+      console.log('400 no query parameter provided')
+      res.status(400).send('a query parameter is required')
+      return ERROR
+    }
+  }
+
+  return NOERROR
+}
+
+const logResponseDetails = (
+  req,
+  res,
+  details = 'response sent successfully'
+) => {
+  console.log('200', details)
+}
+
+const JSONParsingForYoutube = async (
+  req,
+  channelID,
+  filterFunction = (items) => {
+    return items
+  }
+) => {
+  const xmlAsObject = (
+    await getObjectFromRSS(
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelID}`
+    )
+  ).feed
+
+  //builds items array
+  const items = xmlAsObject.entry.map((item) => {
+    const date = new Date(item.published._text)
+    const image = item['media:group']['media:thumbnail']._attributes.url
+
+    return {
+      title: item.title._text,
+      url: item.link._attributes.href,
+      external_url: item.link._attributes.href,
+      id: item.link._attributes.href,
+      summary: item['media:group']['media:description']._text || '',
+      date_published: date.toISOString(),
+      content_text: item['media:group']['media:description']._text,
+      content_html: `<p>${item['media:group']['media:description']._text}</p>`,
+      image,
+    }
+  })
+
+  //filters items with description that is not large enough
+  let filteredItems = filterFunction(items)
+
+  //adds feed specific metadata along with items array at end
+  const updatesObj = {
+    title: xmlAsObject.title._text,
+    home_page_url: xmlAsObject.link[1]._attributes.href,
+    feed_url: `https://rss-test.fly.dev${req.route.path}`,
+    description: `${xmlAsObject.title._text} channel`,
+    items: filteredItems,
+  }
+
+  //adds shared metadata
+  const json = updateJSONWithObject(updatesObj)
+  return json
 }
 
 export {
   jsonTemplate,
   logRequestDetails,
+  logResponseDetails,
   getObjectFromRSS,
   updateJSONWithObject,
+  JSONParsingForYoutube,
 }
