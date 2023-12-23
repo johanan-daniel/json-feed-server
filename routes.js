@@ -14,8 +14,10 @@ router.get('/feeds/example.xml', getExampleXML)
 
 router.get('/', getHome)
 
+// articles
 router.get('/feeds/articles/bbc_travel.json', getBBC_JSON)
 
+// youtube
 router.get('/feeds/youtube/good_work.json', getGoodWorkJSON)
 router.get('/feeds/youtube/max_fosh.json', getMaxFoshJSON)
 router.get('/feeds/youtube/lost_in_the_pond.json', getLostInThePondJSON)
