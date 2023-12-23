@@ -67,15 +67,14 @@ const getGoodWorkJSON = async (req, res) => {
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
-      //items which have less than 28 words are shorts
-      let length = item.summary
+      let descriptionLength = item.summary
         .trim()
         .split(/\s+/)
         .filter((word) => {
           return word.length > 0
         }).length
 
-      return length >= 28
+      return descriptionLength >= 28
     })
 
     return filteredItems
