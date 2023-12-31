@@ -136,6 +136,78 @@ const getLostInThePondJSON = async (req, res) => {
   return res.send(json)
 }
 
+const getPhilEdwardsJSON = async (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  const filterFunction = (items) => {
+    let filteredItems = items.filter((item) => {
+      let hashtagInTitle = item.title.includes('#')
+      let descriptionLength = item.summary.length
+
+      // console.log(item.title, descriptionLength)
+
+      return !hashtagInTitle && descriptionLength > 700
+    })
+
+    return filteredItems
+  }
+
+  const json = await JSONParsingForYoutube(
+    req,
+    'UCb_MAhL8Thb3HJ_wPkH3gcw',
+    filterFunction
+  )
+
+  logResponseDetails(req, res)
+  return res.send(json)
+}
+
+const getJohnnyHarrisJSON = async (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  const filterFunction = (items) => {
+    let filteredItems = items.filter((item) => {
+      let descriptionLength = item.summary.length
+
+      return descriptionLength > 2800
+    })
+
+    return filteredItems
+  }
+
+  const json = await JSONParsingForYoutube(
+    req,
+    'UCmGSJVG3mCRXVOP4yZrU1Dw',
+    filterFunction
+  )
+
+  logResponseDetails(req, res)
+  return res.send(json)
+}
+
+const getMkbhdJSON = async (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  const filterFunction = (items) => {
+    let filteredItems = items.filter((item) => {
+      let descriptionLength = item.summary.length
+
+      return descriptionLength > 120
+    })
+
+    return filteredItems
+  }
+
+  const json = await JSONParsingForYoutube(
+    req,
+    'UCBJycsmduvYEL83R_U4JriQ',
+    filterFunction
+  )
+
+  logResponseDetails(req, res)
+  return res.send(json)
+}
+
 export {
   getExampleXML,
   getHome,
@@ -143,4 +215,7 @@ export {
   getGoodWorkJSON,
   getMaxFoshJSON,
   getLostInThePondJSON,
+  getPhilEdwardsJSON,
+  getJohnnyHarrisJSON,
+  getMkbhdJSON,
 }
