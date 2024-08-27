@@ -12,11 +12,13 @@ import {
   getJohnnyHarrisJSON,
   getMKBHD_JSON,
   getAIPNewsletter,
+  getAvailableFeeds,
 } from './controllers.js'
 
 router.get('/feeds/example.xml', getExampleXML)
 
 router.get('/', getHome)
+router.get('/feeds', getAvailableFeeds)
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', getBBC_JSON)

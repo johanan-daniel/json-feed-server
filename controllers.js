@@ -7,6 +7,8 @@ import {
   JSONParsingForYoutube,
 } from './utils.js'
 
+const baseURL = 'http://localhost:8080'
+
 const getExampleXML = (req, res) => {
   if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
@@ -18,6 +20,34 @@ const getHome = (req, res) => {
   logRequestDetails(req)
 
   return res.send('<p>hello there</p>')
+}
+
+const getAvailableFeeds = (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  const from = req.query.from
+
+  const url_array = [
+    '/articles/bbc_travel.json',
+    '/articles/aip.json',
+
+    '/youtube/good_work.json',
+    '/youtube/max_fosh.json',
+    '/youtube/lost_in_the_pond.json',
+    '/youtube/phil_edwards.json',
+    '/youtube/johnny_harris.json',
+    '/youtube/mkbhd.json',
+  ]
+
+  let output = ''
+
+  for (const url of url_array) {
+    const feed_url = `${baseURL}/feeds${url}?from=${from}`
+    const html = `<div><a href='${feed_url}'>${feed_url}</a></div>`
+    output = output.concat(html)
+  }
+
+  res.send(output)
 }
 
 const getBBC_JSON = async (req, res) => {
@@ -252,6 +282,7 @@ const getAIPNewsletter = async (req, res) => {
 export {
   getExampleXML,
   getHome,
+  getAvailableFeeds,
   getBBC_JSON,
   getGoodWorkJSON,
   getMaxFoshJSON,
