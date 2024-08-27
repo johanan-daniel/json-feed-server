@@ -1,3 +1,5 @@
+import dotenv from 'dotenv'
+
 import {
   jsonTemplate,
   logRequestDetails,
@@ -7,7 +9,9 @@ import {
   JSONParsingForYoutube,
 } from './utils.js'
 
-const baseURL = 'http://localhost:8080'
+dotenv.config()
+
+const baseURL = process.env.base_url
 
 const getExampleXML = (req, res) => {
   if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
@@ -46,6 +50,8 @@ const getAvailableFeeds = (req, res) => {
     const html = `<div><a href='${feed_url}'>${feed_url}</a></div>`
     output = output.concat(html)
   }
+
+  output.concat(`base_url=${baseURL}`)
 
   res.send(output)
 }
