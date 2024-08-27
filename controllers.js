@@ -261,11 +261,10 @@ const getAIPNewsletter = async (req, res) => {
       url: item.link._text,
       external_url: item.link._text,
       id: item.link._text,
-      // authors: [{ name: item['dc:creator']._cdata }],
       summary: item.description._cdata,
       date_published: date.toISOString(),
       content_text: item.description._cdata,
-      content_html: `<p>${item.description._cdata}</p>`,
+      content_html: `<p>${item['content:encoded']._cdata}</p>`,
       image,
     }
   })
