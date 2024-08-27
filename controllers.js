@@ -185,7 +185,7 @@ const getJohnnyHarrisJSON = async (req, res) => {
   return res.send(json)
 }
 
-const getMkbhdJSON = async (req, res) => {
+const getMKBHD_JSON = async (req, res) => {
   if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
@@ -208,6 +208,47 @@ const getMkbhdJSON = async (req, res) => {
   return res.send(json)
 }
 
+const getAIPNewsletter = async (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  const xmlAsObject = (
+    await getObjectFromRSS('https://answerinprogress.substack.com/feed')
+  ).rss.channel
+
+  //builds items array
+  const items = xmlAsObject.item.map((item) => {
+    const date = new Date(item.pubDate._text)
+    const image = item.enclosure && item.enclosure._attributes.url
+
+    return {
+      title: item.title._cdata,
+      url: item.link._text,
+      external_url: item.link._text,
+      id: item.link._text,
+      // authors: [{ name: item['dc:creator']._cdata }],
+      summary: item.description._cdata,
+      date_published: date.toISOString(),
+      content_text: item.description._cdata,
+      content_html: `<p>${item.description._cdata}</p>`,
+      image,
+    }
+  })
+
+  //adds feed specific metadata along with items array at end
+  const updatesObj = {
+    title: xmlAsObject.title._cdata,
+    home_page_url: xmlAsObject['link']._text,
+    feed_url: `https://rss-test.fly.dev${req.route.path}`,
+    description: xmlAsObject.description._cdata,
+    items,
+  }
+
+  //adds shared metadata
+  const json = updateJSONWithObject(updatesObj)
+  logResponseDetails(req, res)
+  return res.send(json)
+}
+
 export {
   getExampleXML,
   getHome,
@@ -217,5 +258,6 @@ export {
   getLostInThePondJSON,
   getPhilEdwardsJSON,
   getJohnnyHarrisJSON,
-  getMkbhdJSON,
+  getMKBHD_JSON,
+  getAIPNewsletter,
 }
