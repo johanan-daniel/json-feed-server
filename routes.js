@@ -14,6 +14,7 @@ import {
   getAIPNewsletter,
   getAvailableFeeds,
   getTimelessArticles,
+  get_xkcd,
 } from './controllers.js'
 
 router.get('/feeds/example.xml', getExampleXML)
@@ -25,6 +26,7 @@ router.get('/feeds', getAvailableFeeds)
 router.get('/feeds/articles/bbc_travel.json', getBBC_JSON)
 router.get('/feeds/articles/aip.json', getAIPNewsletter)
 router.get('/feeds/articles/timeless_articles.json', getTimelessArticles)
+router.get('/feeds/articles/xkcd.json', get_xkcd)
 
 // youtube
 router.get('/feeds/youtube/good_work.json', getGoodWorkJSON)

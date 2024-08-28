@@ -36,6 +36,7 @@ const getAvailableFeeds = (req, res) => {
     '/articles/bbc_travel.json',
     '/articles/aip.json',
     '/articles/timeless_articles.json',
+    '/articles/xkcd.json',
 
     '/youtube/good_work.json',
     '/youtube/max_fosh.json',
@@ -326,6 +327,56 @@ const getTimelessArticles = async (req, res) => {
   return res.send(json)
 }
 
+const get_xkcd = async (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  const main_url = 'https://xkcd.com/info.0.json'
+  let item
+
+  await fetch(main_url)
+    .then((res) => res.json())
+    .then((json) => (item = json))
+
+  let lastItem = item.num
+
+  let items = [item]
+
+  for (let i = 0; i < 9; i++) {
+    lastItem -= 1
+    await fetch(`https://xkcd.com/${lastItem}/info.0.json`)
+      .then((res) => res.json())
+      .then((json) => (item = json))
+
+    items.push(item)
+  }
+
+  items = items.map((item) => {
+    const date = new Date(item.year, item.month - 1, item.day)
+
+    return {
+      title: item.title,
+      url: `https://xkcd.com/${lastItem}/info.0.json`,
+      external_url: `https://xkcd.com/${lastItem}/info.0.json`,
+      id: item.num,
+      summary: item.alt,
+      date_published: date.toISOString(),
+      content_text: item.alt,
+      image: item.img,
+    }
+  })
+
+  const updatesObj = {
+    title: 'xkcd',
+    home_page_url: 'https://xkcd.com',
+    feed_url: `https://${baseURL}${req.route.path}`,
+    description: 'A webcomic of romance, sarcasm, math, and language.',
+    items,
+  }
+  const json = updateJSONWithObject(updatesObj)
+  logResponseDetails(req, res)
+  return res.send(json)
+}
+
 export {
   getExampleXML,
   getHome,
@@ -339,4 +390,5 @@ export {
   getMKBHD_JSON,
   getAIPNewsletter,
   getTimelessArticles,
+  get_xkcd,
 }
