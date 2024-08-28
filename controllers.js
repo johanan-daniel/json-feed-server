@@ -362,7 +362,7 @@ const get_xkcd = async (req, res) => {
       summary: item.alt,
       date_published: date.toISOString(),
       content_text: item.alt,
-      content_html: `<p>${item.alt}</p>`,
+      content_html: `<div><img src=${item.img}><p>${item.alt}</p></div>`,
       image: item.img,
     }
   })
