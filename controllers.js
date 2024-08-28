@@ -307,10 +307,11 @@ const getTimelessArticles = async (req, res) => {
       url: item.url,
       external_url: item.url,
       authors: [{ name: item.author_name }],
-      id: item.id,
+      id: item.url,
       summary: item.title,
       date_published: item.publication_date,
       content_text: item.title,
+      content_html: `<p>${item.title}</p>`,
       image: item.screenshot,
     }
   })
@@ -355,12 +356,13 @@ const get_xkcd = async (req, res) => {
 
     return {
       title: item.title,
-      url: `https://xkcd.com/${lastItem}/info.0.json`,
-      external_url: `https://xkcd.com/${lastItem}/info.0.json`,
-      id: item.num,
+      url: `https://xkcd.com/${item.num}/info.0.json`,
+      external_url: `https://xkcd.com/${item.num}/info.0.json`,
+      id: `https://xkcd.com/${item.num}/info.0.json`,
       summary: item.alt,
       date_published: date.toISOString(),
       content_text: item.alt,
+      content_html: `<p>${item.alt}</p>`,
       image: item.img,
     }
   })
@@ -368,7 +370,7 @@ const get_xkcd = async (req, res) => {
   const updatesObj = {
     title: 'xkcd',
     home_page_url: 'https://xkcd.com',
-    feed_url: `https://${baseURL}${req.route.path}`,
+    feed_url: `${baseURL}${req.route.path}`,
     description: 'A webcomic of romance, sarcasm, math, and language.',
     items,
   }
