@@ -356,9 +356,9 @@ const get_xkcd = async (req, res) => {
 
     return {
       title: item.title,
-      url: `https://xkcd.com/${item.num}/info.0.json`,
-      external_url: `https://xkcd.com/${item.num}/info.0.json`,
-      id: `https://xkcd.com/${item.num}/info.0.json`,
+      url: `https://xkcd.com/${item.num}`,
+      external_url: `https://xkcd.com/${item.num}`,
+      id: `https://xkcd.com/${item.num}`,
       summary: item.alt,
       date_published: date.toISOString(),
       content_text: item.alt,
