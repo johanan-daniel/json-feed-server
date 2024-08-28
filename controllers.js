@@ -318,7 +318,7 @@ const getTimelessArticles = async (req, res) => {
   const updatesObj = {
     title: 'Timeless Articles',
     home_page_url: 'https://readsomethingwonderful.com',
-    feed_url: `https://${baseURL}${req.route.path}`,
+    feed_url: `${baseURL}${req.route.path}`,
     description: 'Some articles people like apparently',
     items,
   }
