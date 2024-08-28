@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import fs from 'fs'
 
 import {
   jsonTemplate,
@@ -11,7 +12,7 @@ import {
 
 dotenv.config()
 
-const baseURL = process.env.base_url
+const baseURL = process.env.base_url || 'https://rss-test.fly.dev'
 
 const getExampleXML = (req, res) => {
   if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
@@ -34,6 +35,7 @@ const getAvailableFeeds = (req, res) => {
   const url_array = [
     '/articles/bbc_travel.json',
     '/articles/aip.json',
+    '/articles/timeless_articles.json',
 
     '/youtube/good_work.json',
     '/youtube/max_fosh.json',
@@ -284,6 +286,46 @@ const getAIPNewsletter = async (req, res) => {
   return res.send(json)
 }
 
+const getTimelessArticles = async (req, res) => {
+  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+
+  // let json = 'moooo'
+  let data
+
+  try {
+    data = fs.readFileSync('articles_sorted_by_date.json', 'utf8')
+  } catch (err) {
+    console.log('Error reading file', err)
+  }
+
+  const json_data = JSON.parse(data.toString())
+
+  const items = json_data.results.map((item) => {
+    return {
+      title: item.title,
+      url: item.url,
+      external_url: item.url,
+      authors: [{ name: item.author_name }],
+      id: item.id,
+      summary: item.title,
+      date_published: item.publication_date,
+      content_text: item.title,
+      image: item.screenshot,
+    }
+  })
+
+  const updatesObj = {
+    title: 'Timeless Articles',
+    home_page_url: 'https://readsomethingwonderful.com',
+    feed_url: `https://${baseURL}${req.route.path}`,
+    description: 'Some articles people like apparently',
+    items,
+  }
+  const json = updateJSONWithObject(updatesObj)
+  logResponseDetails(req, res)
+  return res.send(json)
+}
+
 export {
   getExampleXML,
   getHome,
@@ -296,4 +338,5 @@ export {
   getJohnnyHarrisJSON,
   getMKBHD_JSON,
   getAIPNewsletter,
+  getTimelessArticles,
 }

@@ -1,6 +1,12 @@
-const url = 'https://www.bbc.com/travel/feed.rss'
-let xml = ''
+import fs from 'fs'
 
-await fetch(url)
+let json = 'moooo'
+let data
 
-console.log('xml', xml)
+try {
+  data = fs.readFileSync('articles_sorted_by_date.json', 'utf8')
+} catch (err) {
+  console.log('Error reading file', err)
+}
+
+json = JSON.parse(data.toString())

@@ -13,6 +13,7 @@ import {
   getMKBHD_JSON,
   getAIPNewsletter,
   getAvailableFeeds,
+  getTimelessArticles,
 } from './controllers.js'
 
 router.get('/feeds/example.xml', getExampleXML)
@@ -23,6 +24,7 @@ router.get('/feeds', getAvailableFeeds)
 // articles
 router.get('/feeds/articles/bbc_travel.json', getBBC_JSON)
 router.get('/feeds/articles/aip.json', getAIPNewsletter)
+router.get('/feeds/articles/timeless_articles.json', getTimelessArticles)
 
 // youtube
 router.get('/feeds/youtube/good_work.json', getGoodWorkJSON)
