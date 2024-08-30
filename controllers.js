@@ -64,7 +64,7 @@ const getBBC_JSON = async (req, res) => {
 
   const xmlAsObject = (
     await getObjectFromRSS('https://www.bbc.com/travel/feed.rss')
-  ).rss.channel
+  )['rss'].channel
 
   //builds items array
   const items = xmlAsObject.item.map((item) => {
@@ -252,7 +252,7 @@ const getAIPNewsletter = async (req, res) => {
 
   const xmlAsObject = (
     await getObjectFromRSS('https://answerinprogress.substack.com/feed')
-  ).rss.channel
+  )['rss'].channel
 
   //builds items array
   const items = xmlAsObject.item.map((item) => {
@@ -331,8 +331,10 @@ const getTimelessArticles = async (req, res) => {
 const get_xkcd = async (req, res) => {
   if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
+  const db_id = 'sj6un2m1c46ivvh'
+
   const main_url = 'https://xkcd.com/info.0.json'
-  let item
+  let item = {}
 
   await fetch(main_url)
     .then((res) => res.json())
@@ -362,7 +364,8 @@ const get_xkcd = async (req, res) => {
       summary: item.alt,
       date_published: date.toISOString(),
       content_text: item.alt,
-      content_html: `<div><img src=${item.img}><p>${item.alt}</p></div>`,
+      content_html: `<div><img src=${item.img}><p>${item.alt}</p>
+      <a href="http://www.explainxkcd.com/${item.num}>Explanation</a>"</div>`,
       image: item.img,
     }
   })
