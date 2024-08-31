@@ -48,7 +48,7 @@ const createArticle = async () => {
 
   let json_data = {}
   try {
-    const data = fs.readFileSync('xkcd.json', 'utf8')
+    const data = fs.readFileSync('./assets/xkcd.json', 'utf8')
     json_data = JSON.parse(data.toString())
   } catch (err) {
     console.log('Error reading file', err)

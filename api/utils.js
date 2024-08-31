@@ -25,25 +25,6 @@ const getObjectFromRSS = async (url) => {
   return xml2js(xml, { compact: true })
 }
 
-const logRequestDetails = (req, res, options = null) => {
-  console.log('')
-  console.log(req.method, req.route.path, req.query)
-  let NOERROR = true
-  let ERROR = false
-
-  if (options == null) {
-    return NOERROR
-  } else {
-    if (options.checkForAnyParams && Object.keys(req.query).length === 0) {
-      console.log('400 no query parameter provided')
-      res.status(400).send('a query parameter is required')
-      return ERROR
-    }
-  }
-
-  return NOERROR
-}
-
 const logResponseDetails = (
   req,
   res,
@@ -63,7 +44,7 @@ const JSONParsingForYoutube = async (
     await getObjectFromRSS(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${channelID}`
     )
-  ).feed
+  )['feed']
 
   //builds items array
   const items = xmlAsObject.entry.map((item) => {
@@ -102,7 +83,6 @@ const JSONParsingForYoutube = async (
 
 export {
   jsonTemplate,
-  logRequestDetails,
   logResponseDetails,
   getObjectFromRSS,
   updateJSONWithObject,

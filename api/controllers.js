@@ -3,7 +3,6 @@ import fs from 'fs'
 
 import {
   jsonTemplate,
-  logRequestDetails,
   logResponseDetails,
   getObjectFromRSS,
   updateJSONWithObject,
@@ -12,23 +11,19 @@ import {
 
 dotenv.config()
 
-const baseURL = process.env.base_url || 'https://rss-test.fly.dev'
+const baseURL = process.env.base_url
 
 const getExampleXML = (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
   logResponseDetails(req, res)
   return res.send(jsonTemplate)
 }
 
 const getHome = (req, res) => {
-  logRequestDetails(req)
-
   return res.send('<p>hello there</p>')
 }
 
 const getAvailableFeeds = (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const from = req.query.from
 
@@ -60,7 +55,7 @@ const getAvailableFeeds = (req, res) => {
 }
 
 const getBBC_JSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const xmlAsObject = (
     await getObjectFromRSS('https://www.bbc.com/travel/feed.rss')
@@ -97,12 +92,12 @@ const getBBC_JSON = async (req, res) => {
 
   //adds shared metadata
   const json = updateJSONWithObject(updatesObj)
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getGoodWorkJSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
@@ -125,12 +120,12 @@ const getGoodWorkJSON = async (req, res) => {
     filterFunction
   )
 
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getMaxFoshJSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
@@ -147,12 +142,12 @@ const getMaxFoshJSON = async (req, res) => {
     filterFunction
   )
 
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getLostInThePondJSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
@@ -171,12 +166,12 @@ const getLostInThePondJSON = async (req, res) => {
     filterFunction
   )
 
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getPhilEdwardsJSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
@@ -197,12 +192,12 @@ const getPhilEdwardsJSON = async (req, res) => {
     filterFunction
   )
 
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getJohnnyHarrisJSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
@@ -220,12 +215,12 @@ const getJohnnyHarrisJSON = async (req, res) => {
     filterFunction
   )
 
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getMKBHD_JSON = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const filterFunction = (items) => {
     let filteredItems = items.filter((item) => {
@@ -243,12 +238,13 @@ const getMKBHD_JSON = async (req, res) => {
     filterFunction
   )
 
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getAIPNewsletter = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // inoreader: 172.16.187.186
+  // if (!logRequestDetails(req, res)) return
 
   const xmlAsObject = (
     await getObjectFromRSS('https://answerinprogress.substack.com/feed')
@@ -283,18 +279,18 @@ const getAIPNewsletter = async (req, res) => {
 
   //adds shared metadata
   const json = updateJSONWithObject(updatesObj)
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const getTimelessArticles = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   // let json = 'moooo'
   let data
 
   try {
-    data = fs.readFileSync('articles_sorted_by_date.json', 'utf8')
+    data = fs.readFileSync('./assets/articles_sorted_by_date.json', 'utf8')
   } catch (err) {
     console.log('Error reading file', err)
   }
@@ -324,12 +320,12 @@ const getTimelessArticles = async (req, res) => {
     items,
   }
   const json = updateJSONWithObject(updatesObj)
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
 }
 
 const get_xkcd = async (req, res) => {
-  if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
+  // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const db_id = 'sj6un2m1c46ivvh'
 
@@ -356,16 +352,17 @@ const get_xkcd = async (req, res) => {
   items = items.map((item) => {
     const date = new Date(item.year, item.month - 1, item.day)
 
+    const news = item.news
+
     return {
       title: item.title,
       url: `https://xkcd.com/${item.num}`,
-      external_url: `https://xkcd.com/${item.num}`,
+      external_url: item.link,
       id: `https://xkcd.com/${item.num}`,
       summary: item.alt,
       date_published: date.toISOString(),
-      content_text: item.alt,
-      content_html: `<div><img src=${item.img}><p>${item.alt}</p>
-      <a href="http://www.explainxkcd.com/${item.num}>Explanation</a>"</div>`,
+      content_html: `<div><img src=${item.img} /><p>${item.alt}</p>
+      <a href="https://www.explainxkcd.com/${item.num}">Explanation</a><hr/><p>${news}</p></div>`,
       image: item.img,
     }
   })
@@ -378,8 +375,16 @@ const get_xkcd = async (req, res) => {
     items,
   }
   const json = updateJSONWithObject(updatesObj)
-  logResponseDetails(req, res)
+  // logResponseDetails(req, res)
   return res.send(json)
+}
+
+const get_404 = async (req, res) => {
+  res
+    .status(404)
+    .send(
+      'This route does not exist<a style="display:block" href="/">Go home?</a>'
+    )
 }
 
 export {
@@ -396,4 +401,5 @@ export {
   getAIPNewsletter,
   getTimelessArticles,
   get_xkcd,
+  get_404,
 }

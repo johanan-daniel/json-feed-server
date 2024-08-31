@@ -89,12 +89,12 @@ const processXkcd = async () => {
   })
 
   fs.writeFileSync(
-    `xkcd_${startingNum}_to_${item.num}.json`,
+    `./assets/xkcd_${startingNum}_to_${item.num}.json`,
     JSON.stringify(articles)
   )
 
   fs.writeFileSync(
-    `xkcd_all_data_${startingNum}_to_${item.num}.json`,
+    `./assets/xkcd_all_data_${startingNum}_to_${item.num}.json`,
     JSON.stringify(all)
   )
 
