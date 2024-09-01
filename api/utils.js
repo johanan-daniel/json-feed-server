@@ -3,13 +3,32 @@ import { xml2js } from 'xml-js'
 import jsonTemplate from './constants.js'
 
 const updateJSONWithObject = (input) => {
-  const { title, home_page_url, feed_url, description, items } = input
+  const {
+    title,
+    home_page_url,
+    feed_url,
+    description,
+    items,
+    icon,
+    favicon,
+    authors,
+  } = input
   const jsonFromTemplate = structuredClone(jsonTemplate)
 
   jsonFromTemplate.title = title
   jsonFromTemplate.home_page_url = home_page_url
   jsonFromTemplate.feed_url = feed_url
   jsonFromTemplate.description = description
+  if (icon) {
+    jsonFromTemplate.icon = icon
+  }
+  if (favicon) {
+    jsonFromTemplate.favicon = favicon
+  }
+  if (authors) {
+    jsonFromTemplate.authors = authors
+  }
+
   jsonFromTemplate.items = items
 
   return jsonFromTemplate

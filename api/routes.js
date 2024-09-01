@@ -1,5 +1,9 @@
+// source_1: https://stackoverflow.com/questions/72456535/referenceerror-dirname-is-not-defined-in-es-module-scope
+
 import express from 'express'
 const router = express.Router()
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 import {
   getExampleXML,
@@ -22,8 +26,14 @@ import { check_params, request_logger, response_logger } from './middleware.js'
 router.use(request_logger)
 router.use(response_logger)
 
-router.get('/feeds/example.json', check_params, getExampleXML)
+// source_1
+// serve static files from folders: [assets/public]
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const static_path = path.join(__dirname, '../assets/public')
+router.use('/static', express.static(static_path))
 
+router.get('/feeds/example.json', check_params, getExampleXML)
 router.get('/', getHome)
 router.get('/feeds', check_params, getAvailableFeeds)
 

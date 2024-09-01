@@ -22,6 +22,14 @@ const getHome = (req, res) => {
   return res.send('<p>hello there</p>')
 }
 
+const get_404 = async (_, res) => {
+  res
+    .status(404)
+    .send(
+      'This route does not exist<a style="display:block" href="/">Go home?</a>'
+    )
+}
+
 const getAvailableFeeds = (req, res) => {
   // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
@@ -354,37 +362,37 @@ const get_xkcd = async (req, res) => {
 
     const news = item.news
 
-    return {
+    const object = {
       title: item.title,
       url: `https://xkcd.com/${item.num}`,
-      external_url: item.link,
       id: `https://xkcd.com/${item.num}`,
       summary: item.alt,
       date_published: date.toISOString(),
       content_html: `<div><img src=${item.img} /><p>${item.alt}</p>
-      <a href="https://www.explainxkcd.com/${item.num}">Explanation</a><hr/><p>${news}</p></div>`,
+      <a href="https://www.explainxkcd.com/${item.num}">Explanation</a><p>${news}</p></div>`,
       image: item.img,
     }
+
+    if (item.link) {
+      object['external_url'] = item.link
+    }
+
+    return object
   })
 
   const updatesObj = {
     title: 'xkcd',
     home_page_url: 'https://xkcd.com',
     feed_url: `${baseURL}${req.route.path}`,
+    authors: [{ name: 'Randall Munroe', url: 'https://xkcd.com/about/' }],
     description: 'A webcomic of romance, sarcasm, math, and language.',
+    icon: baseURL + '/static/xkcd_icon.png',
+    favicon: baseURL + '/static/xkcd_icon_64.png',
     items,
   }
   const json = updateJSONWithObject(updatesObj)
   // logResponseDetails(req, res)
   return res.send(json)
-}
-
-const get_404 = async (req, res) => {
-  res
-    .status(404)
-    .send(
-      'This route does not exist<a style="display:block" href="/">Go home?</a>'
-    )
 }
 
 export {
