@@ -20,6 +20,7 @@ import {
   getTimelessArticles,
   get_xkcd,
   get_404,
+  get_backlon_threads,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -36,6 +37,9 @@ router.use('/static', express.static(static_path))
 router.get('/feeds/example.json', check_params, getExampleXML)
 router.get('/', getHome)
 router.get('/feeds', check_params, getAvailableFeeds)
+
+// social
+router.get('/social/backlon.json', get_backlon_threads)
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)

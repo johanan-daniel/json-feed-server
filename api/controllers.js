@@ -384,7 +384,7 @@ const get_xkcd = async (req, res) => {
     title: 'xkcd',
     home_page_url: 'https://xkcd.com',
     feed_url: `${baseURL}${req.route.path}`,
-    authors: [{ name: 'Randall Munroe', url: 'https://xkcd.com/about/' }],
+    // authors: [{ name: 'Randall Munroe', url: 'https://xkcd.com/about/' }],
     description: 'A webcomic of romance, sarcasm, math, and language.',
     icon: baseURL + '/static/xkcd_icon.png',
     favicon: baseURL + '/static/xkcd_icon_64.png',
@@ -395,9 +395,50 @@ const get_xkcd = async (req, res) => {
   return res.send(json)
 }
 
+const get_backlon_threads = async (req, res) => {
+  let data = []
+  await fetch(
+    'https://mastodon.world/api/v1/accounts/112136961701411930/statuses?exclude_replies=true'
+  )
+    .then((res) => {
+      return res.json()
+    })
+    .then((items) => (data = items))
+
+  const items = data.map((item) => {
+    const object = {
+      title: item['content'],
+      url: item['url'],
+      id: item['url'],
+      summary: item['content'],
+      date_published: item['created_at'],
+      content_html: item['content'],
+      // image: item.img,
+    }
+    return object
+  })
+
+  const account_info = data[0]['account']
+  const updatesObj = {
+    title: 'Dieter Bohn',
+    home_page_url: account_info['url'],
+    feed_url: `${baseURL}${req.route.path}`,
+    authors: [{ name: account_info['display_name'] }],
+    description:
+      'Working at Google, formerly founded Verge, Android Central, iMore, Windows Central, PreCentral. Enjoyer of puns, protected bike lanes, and typos',
+    icon: account_info['avatar'],
+    items,
+  }
+
+  const json = updateJSONWithObject(updatesObj)
+
+  res.send(json)
+}
+
 export {
   getExampleXML,
   getHome,
+  get_404,
   getAvailableFeeds,
   getBBC_JSON,
   getGoodWorkJSON,
@@ -409,5 +450,5 @@ export {
   getAIPNewsletter,
   getTimelessArticles,
   get_xkcd,
-  get_404,
+  get_backlon_threads,
 }
