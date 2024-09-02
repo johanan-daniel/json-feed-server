@@ -40,6 +40,9 @@ const getAvailableFeeds = (req, res) => {
     '/articles/aip.json',
     '/articles/timeless_articles.json',
     '/articles/xkcd.json',
+    '/articles/tom_scott.json',
+
+    '/social/backlon.json',
 
     '/youtube/good_work.json',
     '/youtube/max_fosh.json',
@@ -52,7 +55,7 @@ const getAvailableFeeds = (req, res) => {
   let output = ''
 
   for (const url of url_array) {
-    const feed_url = `${baseURL}/feeds${url}?from=${from}`
+    const feed_url = `${baseURL}/feeds${url}`
     const html = `<div><a href='${feed_url}'>${feed_url}</a></div>`
     output = output.concat(html)
   }
@@ -270,7 +273,6 @@ const getAIPNewsletter = async (req, res) => {
       id: item.link._text,
       summary: item.description._cdata,
       date_published: date.toISOString(),
-      content_text: item.description._cdata,
       content_html: `<p>${item['content:encoded']._cdata}</p>`,
       image,
     }
@@ -406,15 +408,30 @@ const get_backlon_threads = async (req, res) => {
     .then((items) => (data = items))
 
   const items = data.map((item) => {
+    let content = item['content']
+    let regex = '<.*?>'
+    var re = new RegExp(regex, 'g')
+    content = content.replace(re, '')
+
+    // let image = item['media_attachments']['preview_url']
+    let html = ''
+    if (item['media_attachments'].length > 0) {
+      const img_url = item['media_attachments'][0]['preview_url']
+      html = `<img src=${img_url} />`
+    }
+
+    // console.log(html)
+
     const object = {
-      title: item['content'],
+      title: content,
       url: item['url'],
       id: item['url'],
-      summary: item['content'],
+      summary: content,
       date_published: item['created_at'],
-      content_html: item['content'],
-      // image: item.img,
+      content_html: `<p>${item['content']}</p>${html}`,
+      // image: item['media_attachments']['preview_url'],
     }
+
     return object
   })
 
@@ -427,6 +444,47 @@ const get_backlon_threads = async (req, res) => {
     description:
       'Working at Google, formerly founded Verge, Android Central, iMore, Windows Central, PreCentral. Enjoyer of puns, protected bike lanes, and typos',
     icon: account_info['avatar'],
+    items,
+  }
+
+  const json = updateJSONWithObject(updatesObj)
+
+  res.send(json)
+}
+
+const get_tom_scott = async (req, res) => {
+  // https://kill-the-newsletter.com/feeds/08p151fwjtiynfac7k8l.xml
+  // const xmlAsObject = (
+  //   await getObjectFromRSS(
+  //     'https://kill-the-newsletter.com/feeds/08p151fwjtiynfac7k8l.xml'
+  //   )
+  // )['feed']['entry']
+  let data
+
+  try {
+    data = fs.readFileSync('./api/asdf.json', 'utf8')
+  } catch (err) {
+    console.log('Error reading file', err)
+  }
+
+  const xmlAsObject = JSON.parse(data.toString())['entry']
+
+  const items = xmlAsObject.map((item) => {
+    return {
+      title: item['title']['_text'],
+      id: item['title']['_text'],
+      summary: item['title']['_text'],
+      date_published: item['published']['_text'],
+      content_html: item['content']['_text'],
+    }
+  })
+
+  const updatesObj = {
+    title: "Tom Scott's Newsletter",
+    home_page_url: 'https://www.tomscott.com/newsletter/',
+    feed_url: `https://rss-test.fly.dev${req.route.path}`,
+    authors: [{ name: 'Tom scott', url: 'https://www.tomscott.com/' }],
+    favicon: baseURL + '/static/tom_scott_icon.png',
     items,
   }
 
@@ -451,4 +509,5 @@ export {
   getTimelessArticles,
   get_xkcd,
   get_backlon_threads,
+  get_tom_scott,
 }
