@@ -15,7 +15,7 @@ import {
   getPhilEdwardsJSON,
   getJohnnyHarrisJSON,
   getMKBHD_JSON,
-  getAIPNewsletter,
+  // getAIPNewsletter,
   getAvailableFeeds,
   getTimelessArticles,
   get_xkcd,
@@ -44,14 +44,14 @@ router.get('/feeds/social/backlon.json', get_backlon_threads)
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)
-router.get('/feeds/articles/aip.json', getAIPNewsletter)
+// router.get('/feeds/articles/aip.json', getAIPNewsletter)
 router.get(
   '/feeds/articles/timeless_articles.json',
   check_params,
   getTimelessArticles
 )
 router.get('/feeds/articles/xkcd.json', get_xkcd)
-router.get('/feeds/articles/tom_scott.json', get_tom_scott)
+router.get('/feeds/articles/tom_scott.*', get_tom_scott)
 
 // youtube
 router.get('/feeds/youtube/good_work.json', check_params, getGoodWorkJSON)

@@ -1,5 +1,6 @@
 /* https://github.com/nashwaan/xml-js */
 import { xml2js } from 'xml-js'
+import fs from 'fs'
 import jsonTemplate from './constants.js'
 
 const updateJSONWithObject = (input) => {
@@ -34,14 +35,31 @@ const updateJSONWithObject = (input) => {
   return jsonFromTemplate
 }
 
-const getObjectFromRSS = async (url) => {
+const getObjectFromXML = async (/** @type {string} */ url, type = 'url') => {
   let xml = 'empty'
+  let status
 
-  await fetch(url)
-    .then((res) => res.text())
-    .then((str) => (xml = str))
+  if (type === 'url') {
+    await fetch(url)
+      .then((res) => {
+        status = res.status
+        return res.text()
+      })
+      .then((str) => (xml = str))
+  } else {
+    try {
+      xml = fs.readFileSync(url, 'utf8')
+    } catch (err) {
+      console.log('Error reading file', err)
+      return {}
+    }
+  }
 
-  return xml2js(xml, { compact: true })
+  if (status == 404) {
+    return { data: xml, status }
+  }
+
+  return { data: xml2js(xml, { compact: true }), status }
 }
 
 const logResponseDetails = (
@@ -60,7 +78,7 @@ const JSONParsingForYoutube = async (
   }
 ) => {
   const xmlAsObject = (
-    await getObjectFromRSS(
+    await getObjectFromXML(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${channelID}`
     )
   )['feed']
@@ -103,7 +121,7 @@ const JSONParsingForYoutube = async (
 export {
   jsonTemplate,
   logResponseDetails,
-  getObjectFromRSS,
+  getObjectFromXML,
   updateJSONWithObject,
   JSONParsingForYoutube,
 }

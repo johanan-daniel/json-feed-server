@@ -4,7 +4,7 @@ import fs from 'fs'
 import {
   jsonTemplate,
   logResponseDetails,
-  getObjectFromRSS,
+  getObjectFromXML,
   updateJSONWithObject,
   JSONParsingForYoutube,
 } from './utils.js'
@@ -37,7 +37,7 @@ const getAvailableFeeds = (req, res) => {
 
   const url_array = [
     '/articles/bbc_travel.json',
-    '/articles/aip.json',
+    // '/articles/aip.json',
     '/articles/timeless_articles.json',
     '/articles/xkcd.json',
     '/articles/tom_scott.json',
@@ -69,8 +69,8 @@ const getBBC_JSON = async (req, res) => {
   // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
   const xmlAsObject = (
-    await getObjectFromRSS('https://www.bbc.com/travel/feed.rss')
-  )['rss'].channel
+    await getObjectFromXML('https://www.bbc.com/travel/feed.rss')
+  )['data']['rss'].channel
 
   //builds items array
   const items = xmlAsObject.item.map((item) => {
@@ -253,45 +253,45 @@ const getMKBHD_JSON = async (req, res) => {
   return res.send(json)
 }
 
-const getAIPNewsletter = async (req, res) => {
-  // inoreader: 172.16.187.186
-  // if (!logRequestDetails(req, res)) return
+// const getAIPNewsletter = async (req, res) => {
+//   // inoreader: 172.16.187.186
+//   // if (!logRequestDetails(req, res)) return
 
-  const xmlAsObject = (
-    await getObjectFromRSS('https://answerinprogress.substack.com/feed')
-  )['rss'].channel
+//   const xmlAsObject = (
+//     await getObjectFromXML('https://answerinprogress.substack.com/feed')
+//   )['data']['rss'].channel
 
-  //builds items array
-  const items = xmlAsObject.item.map((item) => {
-    const date = new Date(item.pubDate._text)
-    const image = item.enclosure && item.enclosure._attributes.url
+//   //builds items array
+//   const items = xmlAsObject.item.map((item) => {
+//     const date = new Date(item.pubDate._text)
+//     const image = item.enclosure && item.enclosure._attributes.url
 
-    return {
-      title: item.title._cdata,
-      url: item.link._text,
-      external_url: item.link._text,
-      id: item.link._text,
-      summary: item.description._cdata,
-      date_published: date.toISOString(),
-      content_html: `<p>${item['content:encoded']._cdata}</p>`,
-      image,
-    }
-  })
+//     return {
+//       title: item.title._cdata,
+//       url: item.link._text,
+//       external_url: item.link._text,
+//       id: item.link._text,
+//       summary: item.description._cdata,
+//       date_published: date.toISOString(),
+//       content_html: `<p>${item['content:encoded']._cdata}</p>`,
+//       image,
+//     }
+//   })
 
-  //adds feed specific metadata along with items array at end
-  const updatesObj = {
-    title: xmlAsObject.title._cdata,
-    home_page_url: xmlAsObject['link']._text,
-    feed_url: `https://rss-test.fly.dev${req.route.path}`,
-    description: xmlAsObject.description._cdata,
-    items,
-  }
+//   //adds feed specific metadata along with items array at end
+//   const updatesObj = {
+//     title: xmlAsObject.title._cdata,
+//     home_page_url: xmlAsObject['link']._text,
+//     feed_url: `https://rss-test.fly.dev${req.route.path}`,
+//     description: xmlAsObject.description._cdata,
+//     items,
+//   }
 
-  //adds shared metadata
-  const json = updateJSONWithObject(updatesObj)
-  // logResponseDetails(req, res)
-  return res.send(json)
-}
+//   //adds shared metadata
+//   const json = updateJSONWithObject(updatesObj)
+//   // logResponseDetails(req, res)
+//   return res.send(json)
+// }
 
 const getTimelessArticles = async (req, res) => {
   // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
@@ -453,26 +453,47 @@ const get_backlon_threads = async (req, res) => {
 }
 
 const get_tom_scott = async (req, res) => {
-  // https://kill-the-newsletter.com/feeds/08p151fwjtiynfac7k8l.xml
-  // const xmlAsObject = (
-  //   await getObjectFromRSS(
-  //     'https://kill-the-newsletter.com/feeds/08p151fwjtiynfac7k8l.xml'
-  //   )
-  // )['feed']['entry']
-  let data
+  let data = []
 
-  try {
-    data = fs.readFileSync('./api/asdf.json', 'utf8')
-  } catch (err) {
-    console.log('Error reading file', err)
+  // const
+
+  if (req.path.split('.').pop() == 'rss') {
+    let raw_xml
+    try {
+      raw_xml = fs.readFileSync('./api/asdf.xml', 'utf8')
+    } catch (err) {
+      console.log('Error reading file', err)
+      return res.status(500).send('Error reading file')
+    }
+
+    res.set('Content-Type', 'application/xml')
+    return res.send(raw_xml)
   }
 
-  const xmlAsObject = JSON.parse(data.toString())['entry']
+  try {
+    const xmlAsObject = await getObjectFromXML(
+      'https://kill-the-newsletter.com/feeds/08p151fwjtiynfac7k8l.xml'
+    )
+    // const xmlAsObject = await getObjectFromXML('./api/asdf.xml', 'file')
 
-  const items = xmlAsObject.map((item) => {
+    const status = xmlAsObject['status']
+    console.log(status)
+    if (status == 404) {
+      return res.status(503).send('The XML URL was not found')
+    } else if (status == 429) {
+      return res.status(503).send('The XML URL is not available')
+    }
+
+    data = data.concat(xmlAsObject['data']['feed']['entry'])
+  } catch {
+    console.log('Error parsing XML')
+    return res.status(500).send('An error occurred while parsing the XML')
+  }
+
+  const items = data.map((item) => {
     return {
       title: item['title']['_text'],
-      id: item['title']['_text'],
+      id: item['link']['_attributes']['href'],
       summary: item['title']['_text'],
       date_published: item['published']['_text'],
       content_html: item['content']['_text'],
@@ -482,8 +503,8 @@ const get_tom_scott = async (req, res) => {
   const updatesObj = {
     title: "Tom Scott's Newsletter",
     home_page_url: 'https://www.tomscott.com/newsletter/',
-    feed_url: `https://rss-test.fly.dev${req.route.path}`,
-    authors: [{ name: 'Tom scott', url: 'https://www.tomscott.com/' }],
+    feed_url: `${baseURL}${req.path}`,
+    authors: [{ name: 'Tom Scott', url: 'https://www.tomscott.com/' }],
     favicon: baseURL + '/static/tom_scott_icon.png',
     items,
   }
@@ -505,7 +526,7 @@ export {
   getPhilEdwardsJSON,
   getJohnnyHarrisJSON,
   getMKBHD_JSON,
-  getAIPNewsletter,
+  // getAIPNewsletter,
   getTimelessArticles,
   get_xkcd,
   get_backlon_threads,
