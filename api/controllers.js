@@ -360,7 +360,7 @@ const get_xkcd = async (req, res) => {
   }
 
   items = items.map((item) => {
-    const date = new Date(item.year, item.month - 1, item.day)
+    const date = new Date(item.year, item.month - 1, item.day, 4)
 
     const news = item.news
 
