@@ -4,7 +4,7 @@
 #
 
 app = "rss-test"
-primary_region = "ord"
+primary_region = "fra"
 
 [build]
 

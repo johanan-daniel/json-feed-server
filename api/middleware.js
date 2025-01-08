@@ -19,9 +19,10 @@ const response_logger = (req, res, next) => {
       case 400:
         output += ' no query parameter provided'
         break
+      case 429:
+        output += ' newsletter feed accessed too many times'
       default:
         output += ' an error has occurred'
-        console.log('mooo')
         break
     }
     console.log(output)
