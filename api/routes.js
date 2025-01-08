@@ -22,7 +22,7 @@ import {
     get_404,
     get_backlon_threads,
     get_tom_scott,
-    // get_bing_image,
+    get_bing_image,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -54,7 +54,7 @@ router.get(
 )
 router.get('/feeds/articles/xkcd.json', get_xkcd)
 router.get('/feeds/articles/tom_scott.*', get_tom_scott)
-// router.get('/feeds/articles/bing_image.json', get_bing_image)
+router.get('/feeds/articles/bing_image.json', get_bing_image)
 
 // websites
 

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import fs from 'fs'
-// import { firefox } from 'playwright'
+import { JSDOM } from 'jsdom'
 
 import {
     jsonTemplate,
@@ -38,7 +38,7 @@ const getAvailableFeeds = (req, res) => {
         '/articles/timeless_articles.json',
         '/articles/xkcd.json',
         '/articles/tom_scott.json',
-        // '/articles/bing_image.json',
+        '/articles/bing_image.json',
 
         '/social/backlon.json',
         '/social/reddit_purdue.json',
@@ -412,68 +412,79 @@ const get_backlon_threads = async (req, res) => {
     res.send(json)
 }
 
-// const get_bing_image = async (req, res) => {
-//     const url = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1'
-//     const local_base_url = 'https://bing.com/'
-//     const response = await fetch(url)
-//     const data = await response.json()
-//     const item = data['images'][0]
-//     const page_url = item['copyrightlink']
-//     const summary = item['copyright'].split(' (')[0]
-//     const title = item['title']
-//     const img_url = `${local_base_url}${item['url']}`
-//     const raw_date = item['fullstartdate']
-//     // gets author info from 3rd character up to but excluding last character
-//     const author_name = item['copyright'].split(' (')[1].slice(2, -1)
+const get_bing_image = async (req, res) => {
+    /**
+     * Because Bing is silly, in order to get the description of the image
+     * (which for whatever reason can't be directly accessed from their API),
+     * this fetches the Bing webpage through Google Translate so the dynamic
+     * webpage is rendered into HTML.
+     * Then it parses the HTML like normal and gets the description.
+     */
+    const url = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1'
+    const local_base_url = 'https://bing.com/'
+    const response = await fetch(url)
+    const data = await response.json()
+    const item = data['images'][0]
+    const desc_search_query = item['copyrightlink'].split('q=')[1]
+    const summary = item['copyright'].split(' (')[0]
+    const title = item['title']
+    const img_url = `${local_base_url}${item['url']}`
+    const raw_date = item['fullstartdate']
+    // gets author info from 3rd character up to but excluding last character
+    const author_name = item['copyright'].split(' (')[1].slice(2, -1)
 
-//     const year = Number(raw_date.slice(0, 4))
-//     const month = Number(raw_date.slice(4, 6))
-//     const day = Number(raw_date.slice(6, 8))
-//     const hour = Number(raw_date.slice(8, 10))
-//     const min = Number(raw_date.slice(10))
-//     const date = new Date(year, month, day, hour, min)
+    const year = Number(raw_date.slice(0, 4))
+    const month = Number(raw_date.slice(4, 6))
+    const day = Number(raw_date.slice(6, 8))
+    const hour = Number(raw_date.slice(8, 10))
+    const min = Number(raw_date.slice(10))
+    const date = new Date(year, month, day, hour, min)
 
-//     // Launch a browser
-//     const browser = await firefox.launch()
-//     const page = await browser.newPage()
+    // fetch webpage from Google translate to because of dynamic webpage
+    const page_url_translate = `https://www-bing-com.translate.goog/search?q=${desc_search_query}&_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
+    const page = await (await fetch(page_url_translate)).text()
+    const { document } = new JSDOM(page).window
 
-//     // Navigate to the webpage
-//     await page.goto(page_url)
+    // Select the element with the specific ID and get its text content
+    const elementId = '#ency_desc_full'
+    const element = document.querySelector(elementId)
+    let elementText = ''
+    if (element) {
+        elementText = element.innerHTML
+    } else {
+        return res
+            .status(500)
+            .send('An error occurred when parsing Bing webpage')
+    }
+    const split_text = elementText.split('<br><br>')
+    const page_url = `https://www.bing.com/search?q=${desc_search_query}`
 
-//     // Select the element with the specific ID and get its text content
-//     const elementId = '#ency_desc_full'
-//     const elementText = await page.$eval(elementId, (el) => el.innerHTML)
-//     const split_text = elementText.split('<br><br>')
+    const items = [
+        {
+            title,
+            authors: [{ name: author_name }],
+            url: page_url,
+            id: page_url,
+            summary,
+            date_published: date.toISOString(),
+            content_html: `<div><h3>${summary}</h3><img src=${img_url}/><p>${split_text[0].trim()}</p><p>${split_text[1].trim()}</p></div>`,
+            image: img_url,
+        },
+    ]
 
-//     // Close the browser
-//     await browser.close()
+    const updatesObj = {
+        title: 'Bing Image of the Day',
+        home_page_url: 'https://bing.com',
+        feed_url: `${baseURL}${req.route.path}`,
+        items,
+        icon: baseURL + '/static/bing_icon.png',
+        favicon: baseURL + '/static/bing_icon.png',
+    }
 
-//     const items = [
-//         {
-//             title,
-//             authors: [{ name: author_name }],
-//             url: page_url,
-//             id: page_url,
-//             summary,
-//             date_published: date.toISOString(),
-//             content_html: `<div><h3>${summary}</h3><img src=${img_url}/><p>${split_text[0]}</p><p>${split_text[1]}</p></div>`,
-//             image: img_url,
-//         },
-//     ]
+    const json = updateJSONWithObject(updatesObj)
 
-//     const updatesObj = {
-//         title: 'Bing Image of the Day',
-//         home_page_url: 'https://bing.com',
-//         feed_url: `${baseURL}${req.route.path}`,
-//         items,
-//         icon: baseURL + '/static/bing_icon.png',
-//         favicon: baseURL + '/static/bing_icon.png',
-//     }
-
-//     const json = updateJSONWithObject(updatesObj)
-
-//     res.send(json)
-// }
+    res.send(json)
+}
 
 const get_tom_scott = async (req, res) => {
     let data = []
@@ -558,6 +569,6 @@ export {
     getTimelessArticles,
     get_xkcd,
     get_backlon_threads,
-    // get_bing_image,
+    get_bing_image,
     get_tom_scott,
 }
