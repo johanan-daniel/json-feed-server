@@ -42,13 +42,6 @@ const getAvailableFeeds = (req, res) => {
 
         '/social/backlon.json',
         '/social/reddit_purdue.json',
-
-        '/youtube/good_work.json',
-        '/youtube/max_fosh.json',
-        '/youtube/lost_in_the_pond.json',
-        '/youtube/phil_edwards.json',
-        '/youtube/johnny_harris.json',
-        '/youtube/mkbhd.json',
     ]
 
     let output = ''
@@ -105,153 +98,6 @@ const getBBC_JSON = async (req, res) => {
     // logResponseDetails(req, res)
     return res.send(json)
 }
-
-// const getGoodWorkJSON = async (req, res) => {
-//     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-//     const filterFunction = (items) => {
-//         let filteredItems = items.filter((item) => {
-//             let descriptionLength = item.summary
-//                 .trim()
-//                 .split(/\s+/)
-//                 .filter((word) => {
-//                     return word.length > 0
-//                 }).length
-
-//             return descriptionLength >= 28
-//         })
-
-//         return filteredItems
-//     }
-
-//     const json = await JSONParsingForYoutube(
-//         req,
-//         'UC_-hYjoNe4PJNFa9iZ4lraA',
-//         filterFunction
-//     )
-
-//     // logResponseDetails(req, res)
-//     return res.send(json)
-// }
-
-// const getMaxFoshJSON = async (req, res) => {
-//     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-//     const filterFunction = (items) => {
-//         let filteredItems = items.filter((item) => {
-//             let titleBeginsLowercase =
-//                 item.title[0].toLowerCase() === item.title[0]
-//             return !titleBeginsLowercase
-//         })
-
-//         return filteredItems
-//     }
-
-//     const json = await JSONParsingForYoutube(
-//         req,
-//         'UCb31gOY6OD8ES0zP8M0GhAw',
-//         filterFunction
-//     )
-
-//     // logResponseDetails(req, res)
-//     return res.send(json)
-// }
-
-// const getLostInThePondJSON = async (req, res) => {
-//     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-//     const filterFunction = (items) => {
-//         let filteredItems = items.filter((item) => {
-//             let hashtagInTitle = item.title.includes('#')
-//             let hasDescription = item.summary.length > 0
-
-//             return !hashtagInTitle && hasDescription
-//         })
-
-//         return filteredItems
-//     }
-
-//     const json = await JSONParsingForYoutube(
-//         req,
-//         'UCqabPJa-N6ORAlO5yMBtWXg',
-//         filterFunction
-//     )
-
-//     // logResponseDetails(req, res)
-//     return res.send(json)
-// }
-
-// const getPhilEdwardsJSON = async (req, res) => {
-//     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-//     const filterFunction = (items) => {
-//         let filteredItems = items.filter((item) => {
-//             let hashtagInTitle = item.title.includes('#')
-//             let descriptionLength = item.summary.length
-
-//             // console.log(item.title, descriptionLength)
-
-//             return !hashtagInTitle && descriptionLength > 700
-//         })
-
-//         return filteredItems
-//     }
-
-//     const json = await JSONParsingForYoutube(
-//         req,
-//         'UCb_MAhL8Thb3HJ_wPkH3gcw',
-//         filterFunction
-//     )
-
-//     // logResponseDetails(req, res)
-//     return res.send(json)
-// }
-
-// const getJohnnyHarrisJSON = async (req, res) => {
-//     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-//     const filterFunction = (items) => {
-//         let filteredItems = items.filter((item) => {
-//             let descriptionLength = item.summary.length
-
-//             return descriptionLength > 2800
-//         })
-
-//         return filteredItems
-//     }
-
-//     const json = await JSONParsingForYoutube(
-//         req,
-//         'UCmGSJVG3mCRXVOP4yZrU1Dw',
-//         filterFunction
-//     )
-
-//     // logResponseDetails(req, res)
-//     return res.send(json)
-// }
-
-// const getMKBHD_JSON = async (req, res) => {
-//     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-//     const filterFunction = (items) => {
-//         let filteredItems = items.filter((item) => {
-//             let descriptionLength = item.summary.length
-
-//             return descriptionLength > 120
-//         })
-
-//         return filteredItems
-//     }
-
-//     const json = await JSONParsingForYoutube(
-//         req,
-//         'UCBJycsmduvYEL83R_U4JriQ',
-//         filterFunction
-//     )
-
-//     // logResponseDetails(req, res)
-//     return res.send(json)
-// }
 
 const getTimelessArticles = async (req, res) => {
     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
@@ -560,12 +406,6 @@ export {
     get_404,
     getAvailableFeeds,
     getBBC_JSON,
-    // getGoodWorkJSON,
-    // getMaxFoshJSON,
-    // getLostInThePondJSON,
-    // getPhilEdwardsJSON,
-    // getJohnnyHarrisJSON,
-    // getMKBHD_JSON,
     getTimelessArticles,
     get_xkcd,
     get_backlon_threads,

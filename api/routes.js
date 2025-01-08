@@ -42,11 +42,9 @@ router.get('/feeds', getAvailableFeeds)
 
 // social
 router.get('/feeds/social/backlon.json', get_backlon_threads)
-// TODO fix
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)
-// router.get('/feeds/articles/aip.json', getAIPNewsletter)
 router.get(
     '/feeds/articles/timeless_articles.json',
     check_params,
@@ -55,24 +53,6 @@ router.get(
 router.get('/feeds/articles/xkcd.json', get_xkcd)
 router.get('/feeds/articles/tom_scott.*', get_tom_scott)
 router.get('/feeds/articles/bing_image.json', get_bing_image)
-
-// websites
-
-// // youtube
-// router.get('/feeds/youtube/good_work.json', check_params, getGoodWorkJSON)
-// router.get('/feeds/youtube/max_fosh.json', check_params, getMaxFoshJSON)
-// router.get(
-//     '/feeds/youtube/lost_in_the_pond.json',
-//     check_params,
-//     getLostInThePondJSON
-// )
-// router.get('/feeds/youtube/phil_edwards.json', check_params, getPhilEdwardsJSON)
-// router.get(
-//     '/feeds/youtube/johnny_harris.json',
-//     check_params,
-//     getJohnnyHarrisJSON
-// )
-// router.get('/feeds/youtube/mkbhd.json', check_params, getMKBHD_JSON)
 
 router.get('*', get_404)
 
