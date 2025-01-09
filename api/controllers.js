@@ -300,10 +300,14 @@ const get_bing_image = async (req, res) => {
     } else {
         return res
             .status(500)
-            .send('An error occurred when parsing Bing webpage')
+            .send('An error occurred when parsing the Bing webpage')
     }
     const split_text = elementText.split('<br><br>')
     const page_url = `https://www.bing.com/search?q=${desc_search_query}`
+
+    const [paragraph_1, paragraph_2 = ''] = split_text.map(
+        (item) => `<p>${item.trim()}</p>`
+    )
 
     const items = [
         {
@@ -313,7 +317,7 @@ const get_bing_image = async (req, res) => {
             id: page_url,
             summary,
             date_published: date.toISOString(),
-            content_html: `<div><h3>${summary}</h3><img src=${img_url}/><p>${split_text[0].trim()}</p><p>${split_text[1].trim()}</p></div>`,
+            content_html: `<div><h3>${summary}</h3><img src=${img_url}/>${paragraph_1}${paragraph_2}</div>`,
             image: img_url,
         },
     ]
@@ -400,6 +404,38 @@ const get_tom_scott = async (req, res) => {
     res.send(json)
 }
 
+const get_reddit_purdue = async (req, res) => {
+    const data = await (
+        await fetch('https://www.reddit.com/r/Purdue/top.json?t=today&limit=5')
+    ).json()
+
+    const raw_items = data['data']['children']
+
+    const items = raw_items.map((obj) => {
+        const item = obj['data']
+        return {
+            title: item['title'],
+            id: item['url'],
+            url: item['url'],
+            summary: item['selftext'],
+            date_published: new Date(item['created_utc']).toISOString(),
+            content_html: item['selftext_html'],
+        }
+    })
+
+    const updatesObj = {
+        title: 'r/Purdue',
+        home_page_url: 'https://www.reddit.com/r/Purdue',
+        feed_url: `${baseURL}${req.path}`,
+        // favicon: baseURL + '/static/tom_scott_icon.png',
+        items,
+    }
+
+    const json = updateJSONWithObject(updatesObj)
+
+    res.send(json)
+}
+
 export {
     getExampleXML,
     getHome,
@@ -411,4 +447,5 @@ export {
     get_backlon_threads,
     get_bing_image,
     get_tom_scott,
+    get_reddit_purdue,
 }
