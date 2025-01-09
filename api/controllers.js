@@ -274,7 +274,7 @@ const get_bing_image = async (req, res) => {
     const desc_search_query = item['copyrightlink'].split('q=')[1]
     const summary = item['copyright'].split(' (')[0]
     const title = item['title']
-    const img_url = `${local_base_url}${item['url']}`
+    let img_url = local_base_url + item['url']
     const raw_date = item['fullstartdate']
     // gets author info from 3rd character up to but excluding last character
     const author_name = item['copyright'].split(' (')[1].slice(2, -1)
@@ -317,8 +317,8 @@ const get_bing_image = async (req, res) => {
             id: page_url,
             summary,
             date_published: date.toISOString(),
-            content_html: `<div><h3>${summary}</h3><img src=${img_url}/>${paragraph_1}${paragraph_2}</div>`,
-            image: img_url,
+            content_html: `<div><h3>${summary}</h3><img src=${img_url} />${paragraph_1}${paragraph_2}</div>`,
+            // image: img_url,
         },
     ]
 
