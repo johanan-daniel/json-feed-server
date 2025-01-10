@@ -291,7 +291,6 @@ const get_bing_image = async (req, res) => {
     const page = await (await fetch(page_url_translate)).text()
     const { document } = new JSDOM(page).window
 
-    // Select the element with the specific ID and get its text content
     const elementId = '#ency_desc_full'
     const element = document.querySelector(elementId)
     let elementText = ''
@@ -405,6 +404,7 @@ const get_tom_scott = async (req, res) => {
 }
 
 const get_reddit_purdue = async (req, res) => {
+    // goes through Google translate because either Reddit or Node isn't playing nice
     const data = await (
         await fetch(
             'https://www-reddit-com.translate.goog/r/Purdue/top.json?t=today&limit=10&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp'
@@ -413,18 +413,16 @@ const get_reddit_purdue = async (req, res) => {
 
     const raw_items = data['data']['children']
 
+    // Additional HTTP requests get made, so this is wrapped in a Promise.all
     let items = await Promise.all(
         raw_items.map(async (obj) => {
             const item = obj['data']
             const url = 'https://reddit.com' + item['permalink']
 
             const upvotes = item['score']
-            let top_comment = -1
+            let top_comment_upvotes = -1
 
-            // 35 upvotes?
-            // 40 comment upvotes
             if (upvotes < 100) {
-                // check if top comment on post has >= 40 upvotes
                 const res = await fetch(
                     `https://old-reddit-com.translate.goog${item['permalink']}.json?sort=top&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
                 )
@@ -436,8 +434,9 @@ const get_reddit_purdue = async (req, res) => {
                     return
                 }
 
-                top_comment = comments[0]['data']['score']
-                if (top_comment < 35) {
+                top_comment_upvotes = comments[0]['data']['score']
+                // 40?
+                if (top_comment_upvotes < 35) {
                     if (num_comments < 20) {
                         return
                     }
@@ -450,13 +449,13 @@ const get_reddit_purdue = async (req, res) => {
                     : ''
 
             const top_comment_html =
-                top_comment != -1
-                    ? `<div>Top comment: <strong>${top_comment}</strong></div>`
+                top_comment_upvotes != -1
+                    ? `<div>Top comment: <strong>${top_comment_upvotes}</strong></div>`
                     : ''
 
             const metadata = `<div>Upvotes: <strong>${item['score']}</strong></div>${top_comment_html}<div>Number of comments: <strong>${item['num_comments']}</strong></div><br>`
 
-            const content_html = item['selftext']
+            const description = item['selftext']
                 ? `<div>${item['selftext'].replace(/\n/g, '<br>')}</div>`
                 : ''
 
@@ -465,6 +464,7 @@ const get_reddit_purdue = async (req, res) => {
                 id: url,
                 url,
                 summary: item['selftext'],
+                // Reddit only sends the sig figs of date, so suffix digits are added
                 date_published: new Date(
                     item['created_utc'] * 1000
                 ).toISOString(),
@@ -474,18 +474,20 @@ const get_reddit_purdue = async (req, res) => {
                         url: `https://reddit.com/u/${item['author']}`,
                     },
                 ],
-                content_html: metadata + (content_html || thumbnail),
+                content_html: metadata + (description || thumbnail),
             }
         })
     )
 
+    // Removes null items that were skipped in map
     items = items.filter((item) => item)
 
     const updatesObj = {
         title: 'r/Purdue',
         home_page_url: 'https://www.reddit.com/r/Purdue',
         feed_url: `${baseURL}${req.path}`,
-        // favicon: baseURL + '/static/tom_scott_icon.png',
+        favicon:
+            'https://www.redditstatic.com/shreddit/assets/favicon/64x64.png',
         items,
     }
 
