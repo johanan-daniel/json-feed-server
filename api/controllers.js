@@ -287,8 +287,14 @@ const get_bing_image = async (req, res) => {
     const date = new Date(year, month, day, hour, min)
 
     // fetch webpage from Google translate to because of dynamic webpage
-    const page_url_translate = `https://www-bing-com.translate.goog/search?q=${desc_search_query}&_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
-    const page = await (await fetch(page_url_translate)).text()
+    const page_url_translate = `https://www.bing.com/search?q=${desc_search_query}`
+    const page = await (
+        await fetch(page_url_translate, {
+            headers: {
+                'User-Agent': 'JSONFeed/1.0',
+            },
+        })
+    ).text()
     const { document } = new JSDOM(page).window
 
     const elementId = '#ency_desc_full'
