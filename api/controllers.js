@@ -406,22 +406,80 @@ const get_tom_scott = async (req, res) => {
 
 const get_reddit_purdue = async (req, res) => {
     const data = await (
-        await fetch('https://www.reddit.com/r/Purdue/top.json?t=today&limit=5')
+        await fetch(
+            'https://www-reddit-com.translate.goog/r/Purdue/top.json?t=today&limit=10&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp'
+        )
     ).json()
 
     const raw_items = data['data']['children']
 
-    const items = raw_items.map((obj) => {
-        const item = obj['data']
-        return {
-            title: item['title'],
-            id: item['url'],
-            url: item['url'],
-            summary: item['selftext'],
-            date_published: new Date(item['created_utc']).toISOString(),
-            content_html: item['selftext_html'],
-        }
-    })
+    let items = await Promise.all(
+        raw_items.map(async (obj) => {
+            const item = obj['data']
+            const url = 'https://reddit.com' + item['permalink']
+
+            const upvotes = item['score']
+            let top_comment = -1
+
+            // 35 upvotes?
+            // 40 comment upvotes
+            if (upvotes < 100) {
+                // check if top comment on post has >= 40 upvotes
+                const res = await fetch(
+                    `https://old-reddit-com.translate.goog${item['permalink']}.json?sort=top&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
+                )
+                const post_raw_data = await res.json()
+                const comments = post_raw_data[1]['data']['children']
+                const num_comments = item['num_comments']
+
+                if (comments.length == 0) {
+                    return
+                }
+
+                top_comment = comments[0]['data']['score']
+                if (top_comment < 35) {
+                    if (num_comments < 20) {
+                        return
+                    }
+                }
+            }
+
+            const thumbnail =
+                item['thumbnail'] !== 'self'
+                    ? `<img src=${item['preview']['images'][0]['resolutions'][3]['url']} />`
+                    : ''
+
+            const top_comment_html =
+                top_comment != -1
+                    ? `<div>Top comment: <strong>${top_comment}</strong></div>`
+                    : ''
+
+            const metadata = `<div>Upvotes: <strong>${item['score']}</strong></div>${top_comment_html}<div>Number of comments: <strong>${item['num_comments']}</strong></div><br>`
+
+            const content_html = item['selftext']
+                ? `<div>${item['selftext'].replace(/\n/g, '<br>')}</div>`
+                : ''
+
+            return {
+                title: item['title'],
+                id: url,
+                url,
+                summary: item['selftext'],
+                date_published: new Date(
+                    item['created_utc'] * 1000
+                ).toISOString(),
+                authors: [
+                    {
+                        name: item['author'],
+                        url: `https://reddit.com/u/${item['author']}`,
+                    },
+                ],
+                content_html: metadata + (content_html || thumbnail),
+            }
+        })
+    )
+
+    items = items.filter((item) => item)
 
     const updatesObj = {
         title: 'r/Purdue',
