@@ -280,19 +280,20 @@ const get_bing_image = async (req, res) => {
     const author_name = item['copyright'].split(' (')[1].slice(2, -1)
 
     const year = Number(raw_date.slice(0, 4))
-    const month = Number(raw_date.slice(4, 6))
+    const month = Number(raw_date.slice(4, 6)) - 1
     const day = Number(raw_date.slice(6, 8))
     const hour = Number(raw_date.slice(8, 10))
     const min = Number(raw_date.slice(10))
     const date = new Date(year, month, day, hour, min)
 
     // fetch webpage from Google translate to because of dynamic webpage
-    const page_url_translate = `https://www.bing.com/search?q=${desc_search_query}`
+    const desc_page_url = `https://www.bing.com/search?q=${desc_search_query}`
     const page = await (
-        await fetch(page_url_translate, {
+        await fetch(desc_page_url, {
             headers: {
                 'User-Agent': 'JSONFeed/1.0',
             },
+            credentials: 'include',
         })
     ).text()
     const { document } = new JSDOM(page).window
@@ -300,19 +301,22 @@ const get_bing_image = async (req, res) => {
     const elementId = '#ency_desc_full'
     const element = document.querySelector(elementId)
     let elementText = ''
+    let paragraph_1 = '',
+        paragraph_2 = ''
+
     if (element) {
         elementText = element.innerHTML
-    } else {
-        return res
-            .status(500)
-            .send('An error occurred when parsing the Bing webpage')
-    }
-    const split_text = elementText.split('<br><br>')
-    const page_url = `https://www.bing.com/search?q=${desc_search_query}`
+        const split_text = elementText.split('<br><br>')
 
-    const [paragraph_1, paragraph_2 = ''] = split_text.map(
-        (item) => `<p>${item.trim()}</p>`
-    )
+        const html_paragraphs = split_text.map(
+            (item) => `<p>${item.trim()}</p>`
+        )
+        paragraph_1 = html_paragraphs[0]
+        if (html_paragraphs.length == 2) {
+            paragraph_2 = html_paragraphs[1]
+        }
+    }
+    const page_url = `https://www.bing.com/search?q=${desc_search_query}`
 
     const items = [
         {
@@ -440,19 +444,34 @@ const get_reddit_purdue = async (req, res) => {
                     return
                 }
 
-                top_comment_upvotes = comments[0]['data']['score']
+                // finds top comment after skipping AutoModerator
+                let i = 0
+                while (
+                    i < comments.length - 1 &&
+                    comments[i]['data']['author'] == 'AutoModerator'
+                ) {
+                    i += 1
+                }
+                top_comment_upvotes = comments[i]['data']['score']
+
                 // 40?
                 if (top_comment_upvotes < 35) {
-                    if (num_comments < 20) {
+                    if (num_comments < 40) {
                         return
                     }
                 }
             }
 
-            const thumbnail =
-                item['thumbnail'] !== 'self'
-                    ? `<img src=${item['preview']['images'][0]['resolutions'][3]['url']} />`
-                    : ''
+            let content = ''
+            if (item['selftext']) {
+                content += `<p>${item['selftext'].replace(/\n/g, '<br>')}</p>`
+            }
+
+            if (item['thumbnail'] !== 'self') {
+                if (item['preview']) {
+                    content += `<img src=${item['preview']['images'][0]['resolutions'][0]['url']} />`
+                }
+            }
 
             const top_comment_html =
                 top_comment_upvotes != -1
@@ -460,10 +479,6 @@ const get_reddit_purdue = async (req, res) => {
                     : ''
 
             const metadata = `<div>Upvotes: <strong>${item['score']}</strong></div>${top_comment_html}<div>Number of comments: <strong>${item['num_comments']}</strong></div><br>`
-
-            const description = item['selftext']
-                ? `<div>${item['selftext'].replace(/\n/g, '<br>')}</div>`
-                : ''
 
             return {
                 title: item['title'],
@@ -480,7 +495,7 @@ const get_reddit_purdue = async (req, res) => {
                         url: `https://reddit.com/u/${item['author']}`,
                     },
                 ],
-                content_html: metadata + (description || thumbnail),
+                content_html: metadata + content,
             }
         })
     )
