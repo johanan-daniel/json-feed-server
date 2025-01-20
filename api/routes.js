@@ -26,6 +26,7 @@ import {
     get_reddit_purdue,
     get_reddit_programmer_humor,
     get_reddit_f_cars,
+    get_reddit_landscape_photography,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -51,6 +52,10 @@ router.get(
     get_reddit_programmer_humor
 )
 router.get('/feeds/social/reddit_f_cars.json', get_reddit_f_cars)
+router.get(
+    '/feeds/social/reddit_landscape_photography.json',
+    get_reddit_landscape_photography
+)
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)
