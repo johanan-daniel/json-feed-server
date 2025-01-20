@@ -25,6 +25,7 @@ import {
     get_bing_image,
     get_reddit_purdue,
     get_reddit_programmer_humor,
+    get_reddit_f_cars,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -49,6 +50,7 @@ router.get(
     '/feeds/social/reddit_programmer_humor.json',
     get_reddit_programmer_humor
 )
+router.get('/feeds/social/reddit_f_cars.json', get_reddit_f_cars)
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)

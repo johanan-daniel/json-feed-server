@@ -76,6 +76,7 @@ const parseRedditFeedIntoItems = async (
     comment_upvotes_limit = 0,
     num_comments_limit = 0
 ) => {
+    // Additional HTTP requests get made, so this is wrapped in a Promise.all
     const items = await Promise.all(
         raw_items.map(async (obj) => {
             const item = obj['data']

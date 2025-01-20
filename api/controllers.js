@@ -44,6 +44,7 @@ const getAvailableFeeds = (req, res) => {
         '/social/backlon.json',
         '/social/reddit_purdue.json',
         '/social/reddit_programmer_humor.json',
+        '/social/reddit_f_cars.json',
     ]
 
     let output = ''
@@ -455,7 +456,6 @@ const get_reddit_programmer_humor = async (req, res) => {
 
     const raw_items = data['data']['children']
 
-    // Additional HTTP requests get made, so this is wrapped in a Promise.all
     let items = await parseRedditFeedIntoItems(raw_items, 15000)
 
     // Removes null items that were skipped in map
@@ -464,6 +464,36 @@ const get_reddit_programmer_humor = async (req, res) => {
     const updatesObj = {
         title: 'r/ProgrammerHumor',
         home_page_url: 'https://www.reddit.com/r/ProgrammerHumor',
+        feed_url: `${baseURL}${req.path}`,
+        favicon:
+            'https://www.redditstatic.com/shreddit/assets/favicon/64x64.png',
+        items,
+    }
+
+    const json = updateJSONWithObject(updatesObj)
+
+    res.send(json)
+}
+
+const get_reddit_f_cars = async (req, res) => {
+    // goes through Google translate because either Reddit or Node isn't playing nice
+    const middle = 'uc'
+    const data = await (
+        await fetch(
+            `https://www-reddit-com.translate.goog/r/f${middle}kcars/top.json?t=today&limit=5&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
+        )
+    ).json()
+
+    const raw_items = data['data']['children']
+
+    let items = await parseRedditFeedIntoItems(raw_items, 4000)
+
+    // Removes null items that were skipped in map
+    items = items.filter((item) => item)
+
+    const updatesObj = {
+        title: `r/fcars`,
+        home_page_url: `https://www.reddit.com/r/f${middle}kcars`,
         feed_url: `${baseURL}${req.path}`,
         favicon:
             'https://www.redditstatic.com/shreddit/assets/favicon/64x64.png',
@@ -488,4 +518,5 @@ export {
     get_tom_scott,
     get_reddit_purdue,
     get_reddit_programmer_humor,
+    get_reddit_f_cars,
 }
