@@ -24,6 +24,7 @@ import {
     get_tom_scott,
     get_bing_image,
     get_reddit_purdue,
+    get_reddit_programmer_humor,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -44,6 +45,10 @@ router.get('/feeds', getAvailableFeeds)
 // social
 router.get('/feeds/social/backlon.json', get_backlon_threads)
 router.get('/feeds/social/reddit_purdue.json', get_reddit_purdue)
+router.get(
+    '/feeds/social/reddit_programmer_humor.json',
+    get_reddit_programmer_humor
+)
 
 // articles
 router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)

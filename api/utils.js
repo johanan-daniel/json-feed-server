@@ -70,6 +70,92 @@ const logResponseDetails = (
     console.log('200', details)
 }
 
+const parseRedditFeedIntoItems = async (
+    raw_items,
+    post_upvotes_threshold,
+    comment_upvotes_limit = 0,
+    num_comments_limit = 0
+) => {
+    const items = await Promise.all(
+        raw_items.map(async (obj) => {
+            const item = obj['data']
+            const url = 'https://reddit.com' + item['permalink']
+
+            const upvotes = item['score']
+            let top_comment_upvotes = -1
+
+            // skips posts that don't meet criteria
+            if (upvotes < post_upvotes_threshold) {
+                if (comment_upvotes_limit == 0 || item['num_comments'] == 0) {
+                    return
+                }
+
+                const res = await fetch(
+                    `https://old-reddit-com.translate.goog${item['permalink']}.json?sort=top&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
+                )
+                const post_raw_data = await res.json()
+                const comments = post_raw_data[1]['data']['children']
+                const num_comments = item['num_comments']
+
+                // finds top comment after skipping AutoModerator
+                let i = 0
+                while (
+                    i < comments.length - 1 &&
+                    comments[i]['data']['author'] == 'AutoModerator'
+                ) {
+                    i += 1
+                }
+                top_comment_upvotes = comments[i]['data']['score']
+
+                if (
+                    top_comment_upvotes < comment_upvotes_limit &&
+                    num_comments < num_comments_limit
+                ) {
+                    return
+                }
+            }
+
+            let content = ''
+            if (item['selftext']) {
+                content += `<p>${item['selftext'].replace(/\n/g, '<br>')}</p>`
+            }
+
+            if (item['thumbnail'] !== 'self') {
+                if (item['preview']) {
+                    content += `<img src=${item['preview']['images'][0]['resolutions'][0]['url']} />`
+                }
+            }
+
+            const top_comment_html =
+                top_comment_upvotes != -1
+                    ? `<div>Top comment: <strong>${top_comment_upvotes}</strong></div>`
+                    : ''
+
+            const metadata = `<div>Upvotes: <strong>${item['score']}</strong></div>${top_comment_html}<div>Number of comments: <strong>${item['num_comments']}</strong></div><br>`
+
+            return {
+                title: item['title'],
+                id: url,
+                url,
+                summary: item['selftext'],
+                // Reddit only sends the sig figs of date, so suffix digits are added
+                date_published: new Date(
+                    item['created_utc'] * 1000
+                ).toISOString(),
+                authors: [
+                    {
+                        name: item['author'],
+                        url: `https://reddit.com/u/${item['author']}`,
+                    },
+                ],
+                content_html: metadata + content,
+            }
+        })
+    )
+
+    return items
+}
+
 const JSONParsingForYoutube = async (
     req,
     channelID,
@@ -123,4 +209,5 @@ export {
     logResponseDetails,
     getObjectFromXML,
     updateJSONWithObject,
+    parseRedditFeedIntoItems,
 }

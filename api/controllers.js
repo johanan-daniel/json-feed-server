@@ -7,6 +7,7 @@ import {
     logResponseDetails,
     getObjectFromXML,
     updateJSONWithObject,
+    parseRedditFeedIntoItems,
 } from './utils.js'
 
 dotenv.config()
@@ -42,6 +43,7 @@ const getAvailableFeeds = (req, res) => {
 
         '/social/backlon.json',
         '/social/reddit_purdue.json',
+        '/social/reddit_programmer_humor.json',
     ]
 
     let output = ''
@@ -424,81 +426,37 @@ const get_reddit_purdue = async (req, res) => {
     const raw_items = data['data']['children']
 
     // Additional HTTP requests get made, so this is wrapped in a Promise.all
-    let items = await Promise.all(
-        raw_items.map(async (obj) => {
-            const item = obj['data']
-            const url = 'https://reddit.com' + item['permalink']
+    let items = await parseRedditFeedIntoItems(raw_items, 100, 35, 40)
 
-            const upvotes = item['score']
-            let top_comment_upvotes = -1
+    // Removes null items that were skipped in map
+    items = items.filter((item) => item)
 
-            if (upvotes < 100) {
-                const res = await fetch(
-                    `https://old-reddit-com.translate.goog${item['permalink']}.json?sort=top&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp`
-                )
-                const post_raw_data = await res.json()
-                const comments = post_raw_data[1]['data']['children']
-                const num_comments = item['num_comments']
+    const updatesObj = {
+        title: 'r/Purdue',
+        home_page_url: 'https://www.reddit.com/r/Purdue',
+        feed_url: `${baseURL}${req.path}`,
+        favicon:
+            'https://www.redditstatic.com/shreddit/assets/favicon/64x64.png',
+        items,
+    }
 
-                if (comments.length == 0) {
-                    return
-                }
+    const json = updateJSONWithObject(updatesObj)
 
-                // finds top comment after skipping AutoModerator
-                let i = 0
-                while (
-                    i < comments.length - 1 &&
-                    comments[i]['data']['author'] == 'AutoModerator'
-                ) {
-                    i += 1
-                }
-                top_comment_upvotes = comments[i]['data']['score']
+    res.send(json)
+}
 
-                // 40?
-                if (top_comment_upvotes < 35) {
-                    if (num_comments < 40) {
-                        return
-                    }
-                }
-            }
+const get_reddit_programmer_humor = async (req, res) => {
+    // goes through Google translate because either Reddit or Node isn't playing nice
+    const data = await (
+        await fetch(
+            'https://www-reddit-com.translate.goog/r/ProgrammerHumor/top.json?t=today&limit=10&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp'
+        )
+    ).json()
 
-            let content = ''
-            if (item['selftext']) {
-                content += `<p>${item['selftext'].replace(/\n/g, '<br>')}</p>`
-            }
+    const raw_items = data['data']['children']
 
-            if (item['thumbnail'] !== 'self') {
-                if (item['preview']) {
-                    content += `<img src=${item['preview']['images'][0]['resolutions'][0]['url']} />`
-                }
-            }
-
-            const top_comment_html =
-                top_comment_upvotes != -1
-                    ? `<div>Top comment: <strong>${top_comment_upvotes}</strong></div>`
-                    : ''
-
-            const metadata = `<div>Upvotes: <strong>${item['score']}</strong></div>${top_comment_html}<div>Number of comments: <strong>${item['num_comments']}</strong></div><br>`
-
-            return {
-                title: item['title'],
-                id: url,
-                url,
-                summary: item['selftext'],
-                // Reddit only sends the sig figs of date, so suffix digits are added
-                date_published: new Date(
-                    item['created_utc'] * 1000
-                ).toISOString(),
-                authors: [
-                    {
-                        name: item['author'],
-                        url: `https://reddit.com/u/${item['author']}`,
-                    },
-                ],
-                content_html: metadata + content,
-            }
-        })
-    )
+    // Additional HTTP requests get made, so this is wrapped in a Promise.all
+    let items = await parseRedditFeedIntoItems(raw_items, 15000)
 
     // Removes null items that were skipped in map
     items = items.filter((item) => item)
@@ -529,4 +487,5 @@ export {
     get_bing_image,
     get_tom_scott,
     get_reddit_purdue,
+    get_reddit_programmer_humor,
 }
