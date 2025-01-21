@@ -457,7 +457,8 @@ const get_reddit_programmer_humor = async (req, res) => {
 
     const raw_items = data['data']['children']
 
-    let items = await parseRedditFeedIntoItems(raw_items, 15000)
+    // 15000 or 7000?
+    let items = await parseRedditFeedIntoItems(raw_items, 5500)
 
     // Removes null items that were skipped in map
     items = items.filter((item) => item)
