@@ -35,17 +35,18 @@ const getAvailableFeeds = (req, res) => {
     const from = req.query.from
 
     const url_array = [
-        '/articles/bbc_travel.json',
-        '/articles/timeless_articles.json',
-        '/articles/xkcd.json',
-        '/articles/tom_scott.json',
-        '/articles/bing_image.json',
-
-        '/social/backlon.json',
         '/social/reddit_purdue.json',
         '/social/reddit_programmer_humor.json',
         '/social/reddit_f_cars.json',
         '/social/reddit_landscape_photography.json',
+
+        // '/articles/bbc_travel.json',
+        // '/articles/timeless_articles.json',
+        '/articles/xkcd.json',
+        '/articles/tom_scott.json',
+        '/articles/bing_image.json',
+
+        // '/social/backlon.json',
     ]
 
     let output = ''
