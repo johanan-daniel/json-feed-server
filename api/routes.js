@@ -27,6 +27,7 @@ import {
     get_reddit_programmer_humor,
     get_reddit_f_cars,
     get_reddit_landscape_photography,
+    get_notion_tech,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -67,6 +68,7 @@ router.get(
 router.get('/feeds/articles/xkcd.json', get_xkcd)
 router.get('/feeds/articles/tom_scott.*', get_tom_scott)
 router.get('/feeds/articles/bing_image.json', get_bing_image)
+router.get('/feeds/articles/notion_tech.json', get_notion_tech)
 
 router.get('*', get_404)
 
