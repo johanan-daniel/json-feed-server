@@ -29,6 +29,10 @@ const get_404 = async (_, res) => {
     )
 }
 
+const get_health = (req, res) => {
+    return res.status(200).send('OK')
+}
+
 const getAvailableFeeds = (req, res) => {
     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
@@ -577,6 +581,7 @@ export {
     getExampleXML,
     getHome,
     get_404,
+    get_health,
     getAvailableFeeds,
     getBBC_JSON,
     getTimelessArticles,

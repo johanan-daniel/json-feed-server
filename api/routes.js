@@ -28,6 +28,7 @@ import {
     get_reddit_f_cars,
     get_reddit_landscape_photography,
     get_notion_tech,
+    get_health,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -44,6 +45,7 @@ router.use('/static', express.static(static_path))
 router.get('/feeds/example.json', check_params, getExampleXML)
 router.get('/', getHome)
 router.get('/feeds', getAvailableFeeds)
+router.get('/health', get_health)
 
 // social
 router.get('/feeds/social/backlon.json', get_backlon_threads)
