@@ -1,4 +1,3 @@
-import dotenv from 'dotenv'
 import fs from 'fs'
 import { JSDOM } from 'jsdom'
 
@@ -8,11 +7,11 @@ import {
     getObjectFromXML,
     updateJSONWithObject,
     parseRedditFeedIntoItems,
+    baseURL,
 } from './utils.js'
+import { xml2js } from 'xml-js'
+import { getJsonFeed as getNotionJsonFeed } from './services/notionService.js'
 
-dotenv.config()
-
-const baseURL = process.env.base_url
 
 const getExampleXML = (req, res) => {
     logResponseDetails(req, res)
@@ -542,39 +541,38 @@ const get_reddit_landscape_photography = async (req, res) => {
 }
 
 const get_notion_tech = async (req, res) => {
-    let status
-    const data = await fetch(`https://www.notion.com/blog/topic/tech`).then(
-        (res) => {
-            status = res.status
-            return res.text()
-        }
-    ).then(res => {
-        return res
+    const jsonFeed = await getNotionJsonFeed(req)
+
+    return res.json(jsonFeed)
+}
+
+const get_doordash_eng = async (req, res) => {
+    // const raw_data = await getObjectFromXML('./api/doordash.xml', 'file')
+    // const raw_data = await getObjectFromXML(
+    //     'https://careersatdoordash.com/feed/'
+    // )
+    let status = 0
+    const raw_data = await fetch('https://careersatdoordash.com/feed/', {
+        headers: {
+            // exactly Postman’s UA
+            'User-Agent': 'PostmanRuntime/7.43.3',
+            Accept: '*/*',
+            'Cache-Control': 'no-cache',
+            'Accept-Encoding': 'gzip, deflate, br',
+            Connection: 'keep-alive',
+            // you can also add a referer if needed:
+            Referer: 'https://careersatdoordash.com/',
+        },
+    }).then((res) => {
+        status = res.status
+        return res.text()
     })
+    console.log('status', status)
+    fs.writeFileSync('./api/doordash_req.xml', raw_data, 'utf-8')
+    // xml2js(raw_data)
 
-    console.log(data)
-    res.send(data)
-    
-    return
-    const raw_items = data['data']['children']
-
-    let items = await parseRedditFeedIntoItems(raw_items, 1500)
-
-    // Removes null items that were skipped in map
-    items = items.filter((item) => item)
-
-    const updatesObj = {
-        title: `r/LandscapePhotography`,
-        home_page_url: `https://www.reddit.com/r/LandscapePhotography`,
-        feed_url: `${baseURL}${req.path}`,
-        favicon:
-            'https://www.redditstatic.com/shreddit/assets/favicon/64x64.png',
-        items,
-    }
-
-    const json = updateJSONWithObject(updatesObj)
-
-    res.send(json)
+    // console.log(raw_data)
+    res.send(raw_data)
 }
 
 export {
@@ -594,4 +592,5 @@ export {
     get_reddit_f_cars,
     get_reddit_landscape_photography,
     get_notion_tech,
+    get_doordash_eng,
 }

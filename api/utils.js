@@ -2,6 +2,11 @@
 import { xml2js } from 'xml-js'
 import fs from 'fs'
 import jsonTemplate from './constants.js'
+import dotenv from 'dotenv'
+
+dotenv.config()
+
+const baseURL = process.env.base_url
 
 const updateJSONWithObject = (input) => {
     const {
@@ -211,4 +216,5 @@ export {
     getObjectFromXML,
     updateJSONWithObject,
     parseRedditFeedIntoItems,
+    baseURL
 }

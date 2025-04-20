@@ -29,6 +29,7 @@ import {
     get_reddit_landscape_photography,
     get_notion_tech,
     get_health,
+    get_doordash_eng,
 } from './controllers.js'
 import { check_params, request_logger, response_logger } from './middleware.js'
 
@@ -70,7 +71,8 @@ router.get(
 router.get('/feeds/articles/xkcd.json', get_xkcd)
 router.get('/feeds/articles/tom_scott.*', get_tom_scott)
 router.get('/feeds/articles/bing_image.json', get_bing_image)
-router.get('/feeds/articles/notion_tech.json', get_notion_tech)
+router.get('/feeds/articles/notion_eng.json', get_notion_tech)
+router.get('/feeds/articles/doordash_eng.json', get_doordash_eng)
 
 router.get('*', get_404)
 
