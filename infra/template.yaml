@@ -1,0 +1,72 @@
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  scheduled-xkcd-lambda
+
+Resources:
+  XkcdLambda:
+    # SAM resource type
+    Type: AWS::Serverless::Function
+    Properties:
+      # Description: !Sub
+      #   - Stack ${AWS::StackName} Function ${ResourceName}
+      #   - ResourceName: XkcdLambda
+      CodeUri: src/xkcd_lambda
+      Handler: xkcd.handler
+      Runtime: python3.13
+      MemorySize: 128
+      Timeout: 20
+      # Tracing: Active
+      # Environment: {}
+      # lets lambda access dynamoDB
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JsonFeedTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JsonFeedTable
+          DYNAMODB_ENDPOINT_URL: ""
+      Events:
+        # EventBridgeRule:
+        Schedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 10,16,20,0 * * ? *) # 6 AM, 12 PM, 4 PM, 8 PM UTC
+  # XkcdLambdaLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   DeletionPolicy: Retain
+  #   Properties:
+  #     LogGroupName: !Sub /aws/lambda/${XkcdLambda}
+
+  JsonFeedTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: JsonFeed
+      AttributeDefinitions:
+        - AttributeName: Feed
+          AttributeType: S
+        - AttributeName: Post
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Feed
+          KeyType: HASH
+        - AttributeName: Post
+          KeyType: RANGE
+      # technically not needed if ProvisionedThroughput is set
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+Outputs:
+  XkcdLambdaName:
+    Description: Name of the Lambda Function
+    Value: !Ref XkcdLambda
+  XkcdLambdaArn:
+    Description: ARN of the Lambda Function
+    Value: !GetAtt XkcdLambda.Arn
+  JsonFeedTableName:
+    Description: Name of the DynamoDB Table
+    Value: !Ref JsonFeedTable
+  JsonFeedTableArn:
+    Description: ARN of the DynamoDB Table
+    Value: !GetAtt JsonFeedTable.Arn

@@ -151,8 +151,6 @@ const getTimelessArticles = async (req, res) => {
 const get_xkcd = async (req, res) => {
     // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
 
-    const db_id = 'sj6un2m1c46ivvh'
-
     const main_url = 'https://xkcd.com/info.0.json'
     let item = {}
 
