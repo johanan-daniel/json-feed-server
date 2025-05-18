@@ -27,10 +27,14 @@ Resources:
           DYNAMODB_ENDPOINT_URL: ""
       Events:
         # EventBridgeRule:
-        Schedule:
+        DaySchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(0 10,16,20,0 * * ? *) # 6 AM, 12 PM, 4 PM, 8 PM UTC
+            Schedule: cron(0 10,16,20 ? * 2,4,6 *) # 6 AM, 12 PM, 4 PM, 8 PM MWF EDT
+        NightSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0,4 ? * 3,5,7 *) # 8 PM MWF, 12 AM TRS EDT
   # XkcdLambdaLogGroup:
   #   Type: AWS::Logs::LogGroup
   #   DeletionPolicy: Retain
