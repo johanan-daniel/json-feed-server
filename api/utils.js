@@ -127,8 +127,10 @@ const parseRedditFeedIntoItems = async (
             }
 
             if (item['thumbnail'] !== 'self') {
+                // this may not be present on posts with multiple images
                 if (item['preview']) {
-                    content += `<img src=${item['preview']['images'][0]['resolutions'][0]['url']} />`
+                    // retrieve the largest image (last in resolutions)
+                    content += `<img src=${item['preview']['images'][0]['resolutions'].at(-1)['url']} />`
                 }
             }
 
