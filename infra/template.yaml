@@ -40,6 +40,29 @@ Resources:
   #   DeletionPolicy: Retain
   #   Properties:
   #     LogGroupName: !Sub /aws/lambda/${XkcdLambda}
+  TomScottLambda:
+    # SAM resource type
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/tom_scott_lambda
+      Handler: tom_scott.handler
+      Runtime: python3.13
+      MemorySize: 128
+      Timeout: 20
+      # lets lambda access dynamoDB
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JsonFeedTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JsonFeedTable
+          DYNAMODB_ENDPOINT_URL: ""
+      Events:
+        # EventBridgeRule:
+        MondaySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 15,16 ? * 2 *) # 11 AM, 12 PM MWF EDT
 
   JsonFeedTable:
     Type: AWS::DynamoDB::Table

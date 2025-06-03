@@ -3,26 +3,25 @@ import boto3
 from boto3.dynamodb.conditions import Key
 import requests
 from datetime import datetime
-
-xkcd_feed_name = 'xkcd'
+import xmltodict
 
 def handler(event, context):
-    main()
-
+    feed_name = 'tom_scott'
     print()
-    return {"body": "xkcd lambda done"}
-
-
-def main():
+    main(feed_name)
     print()
-    
+
+    return {"body": f'{feed_name} lambda done'}
+
+
+def main(feed_name):
     dynamodb_table = get_dynamodb_table()
     if not dynamodb_table:
         print('DynamoDB table not found')
         return
 
-    prune_feed_items(dynamodb_table, xkcd_feed_name, 20)
-    save_new_xkcd_post(dynamodb_table)
+    prune_feed_items(dynamodb_table, feed_name, 20)
+    save_new_post(dynamodb_table, feed_name)
 
 def prune_feed_items(dynamodb_table, feed: str, limit: int=10):
     response = dynamodb_table.query(
@@ -44,58 +43,60 @@ def prune_feed_items(dynamodb_table, feed: str, limit: int=10):
                 }
             )
 
-def save_new_xkcd_post(dynamodb_table):
-    data = get_new_xkcd_post(dynamodb_table)
-    if not data:
+def save_new_post(dynamodb_table, feed_name):
+    raw_json = get_new_post(dynamodb_table, feed_name)
+    if not raw_json:
         print('No new post data found')
         return
+
+    data_entries = raw_json['feed']['entry']
+    if not data_entries:
+        print('No entries in feed')
+        return
+
+    data = data_entries[0]
     
     # check if post already is saved
     response = dynamodb_table.query(
-        KeyConditionExpression= Key('Feed').eq(xkcd_feed_name) & Key('Post').begins_with('POST#'),
+        KeyConditionExpression= Key('Feed').eq(feed_name) & Key('Post').begins_with('POST#'),
         ProjectionExpression='Post',
         Limit=1,
         ScanIndexForward=False
     )
     if response['Items']:
-        post_id_str: str = response['Items'][0]['Post']
-        post_id = int(post_id_str[5:])
+        post_id: str = response['Items'][0]['Post'][5:]
 
-        if post_id == data['num']:
+        if post_id == data['id']:
             print(f'Post {post_id} already saved')
             return
 
     # process data into post
-    date = datetime(year=int(data['year']), month=int(data['month']), day=int(data['day']), hour=5)
-    
+    date = datetime.fromisoformat(data['published'])
+    month_padded = str(date.month).rjust(2, '0')
+    day_padded = str(date.day).rjust(2, '0')
+    article_url = f'https://www.tomscott.com/newsletter/{date.year}-{month_padded}-{day_padded}'
     post = {
-        'Feed': xkcd_feed_name,
-        'Post': f"POST#{data['num']}",
+        'Feed': feed_name,
+        'Post': f"POST#{data['id']}",
         'title': data['title'],
-        'url': f'https://xkcd.com/{data['num']}',
-        'id': f'https://xkcd.com/{data['num']}',
-        'summary': data['alt'],
-        'date_published': date.isoformat(),
-        'content_html': f'<div><img src={data['img']} /><p>{data['alt']}</p> \
-            <a href="https://www.explainxkcd.com/{data['num']}">Explanation</a><p>{data['news']}</p></div>',
-        'image': data['img']
+        'url': article_url,
+        'id': article_url,
+        'summary': data['title'],
+        'date_published': data['published'],
+        'content_html': data['content']['#text'],
     }
 
-    if 'link' in data:
-        post['external_url'] = data['link']
-    
     # save post
     response = dynamodb_table.put_item(Item=post)
     table_name = dynamodb_table.table_name
-    print(f"Item added to {table_name}: {post['id']}")
-    print()
+    print(f"Item added to {table_name} under {feed_name}: {data['id']}")
 
-def get_new_xkcd_post(dynamodb_table):
+def get_new_post(dynamodb_table, feed_name):
     # get feed url
     response = dynamodb_table.get_item(
         Key={
-            'Feed': xkcd_feed_name,
-            'Post': xkcd_feed_name
+            'Feed': feed_name,
+            'Post': feed_name
         }
     )
     url = ''
@@ -113,14 +114,16 @@ def get_new_xkcd_post(dynamodb_table):
         print('Url request failed')
         return None
     
-    data = response.json()
+    # convert xml to json
+    xml_str = response.text
+    data = xmltodict.parse(xml_str)
     return data
 
 def get_dynamodb_table():
     table_name = os.environ['TABLE_NAME']
     endpoint_url = os.environ.get('DYNAMODB_ENDPOINT_URL')
 
-    print('endpoint_url', endpoint_url)
+    # print('endpoint_url', endpoint_url)
 
     dynamodb_args = {}
     # only for local dev

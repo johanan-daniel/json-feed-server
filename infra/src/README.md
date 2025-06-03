@@ -1,9 +1,9 @@
-# xkcd_lambda
+# Lambdas
 ## Running locally
 1. Run `sam build`
 2. Ensure Docker and DynamoDB are running locally
 3. Ensure .env.json exists under the xkcd_lambda directory and contains the correct values
-3. Run `sam local invoke XkcdLambda -n src/xkcd_lambda/.env.json`
+3. Run `sam local invoke LAMBDA_LOGICAL_ID -n src/LAMBDA_DIR/.env.json`
 ## Deploying
 1. Run `sam build`
 2. Run `sam deploy`
