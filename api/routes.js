@@ -69,11 +69,11 @@ router.get(
     getTimelessArticles
 )
 router.get('/feeds/articles/xkcd.json', get_xkcd)
-router.get('/feeds/articles/tom_scott.*', get_tom_scott)
+router.get('/feeds/articles/tom_scott.*splat', get_tom_scott)
 router.get('/feeds/articles/bing_image.json', get_bing_image)
 router.get('/feeds/articles/notion_eng.json', get_notion_tech)
 router.get('/feeds/articles/doordash_eng.json', get_doordash_eng)
 
-router.get('*', get_404)
+router.get('/*splat', get_404)
 
 export default router
