@@ -11,6 +11,7 @@ import {
 } from './utils.js'
 import { xml2js } from 'xml-js'
 import { getJsonFeed as getNotionJsonFeed } from './services/notionService.js'
+import { getJsonFeed as getAvailableFeedsJsonFeed } from './services/availableFeedsService.js'
 
 
 const getExampleXML = (req, res) => {
@@ -32,36 +33,9 @@ const get_health = (req, res) => {
     return res.status(200).send('OK')
 }
 
-const getAvailableFeeds = (req, res) => {
-    // if (!logRequestDetails(req, res, { checkForAnyParams: true })) return
-
-    const from = req.query.from
-
-    const url_array = [
-        '/social/reddit_purdue.json',
-        '/social/reddit_programmer_humor.json',
-        '/social/reddit_f_cars.json',
-        '/social/reddit_landscape_photography.json',
-
-        // '/articles/bbc_travel.json',
-        // '/articles/timeless_articles.json',
-        '/articles/xkcd.json',
-        '/articles/tom_scott.json',
-        '/articles/bing_image.json',
-
-        // '/social/backlon.json',
-    ]
-
-    let output = ''
-
-    for (const url of url_array) {
-        const feed_url = `${baseURL}/feeds${url}`
-        const html = `<div><a href='${feed_url}'>${feed_url}</a></div>`
-        output = output.concat(html)
-    }
-
-    output.concat(`base_url=${baseURL}`)
-
+const getAvailableFeeds = async (req, res) => {
+    const output = await getAvailableFeedsJsonFeed(req, baseURL)
+    console.log('hi', output)
     res.send(output)
 }
 
