@@ -37,12 +37,12 @@ const get_health = (req, res) => {
 }
 
 const getAvailableFeeds = async (req, res) => {
-    const output = await getAvailableFeedsJsonFeed(req)
+    const output = await getAvailableFeedsJsonFeed()
     res.send(output)
 }
 
 const getBBC_JSON = async (req, res) => {
-    const jsonFeed = await getBbcTravelJsonFeed(req)
+    const jsonFeed = await getBbcTravelJsonFeed(req.path)
     return res.send(jsonFeed)
 }
 
@@ -88,17 +88,17 @@ const getTimelessArticles = async (req, res) => {
 }
 
 const get_xkcd = async (req, res) => {
-    const jsonFeed = await getXkcdJsonFeed(req)
+    const jsonFeed = await getXkcdJsonFeed(req.path)
     return res.send(jsonFeed)
 }
 
 const get_backlon_threads = async (req, res) => {
-    const jsonFeed = await getThreadsBacklonJsonFeed(req)
+    const jsonFeed = await getThreadsBacklonJsonFeed(req.path)
     res.send(jsonFeed)
 }
 
 const get_bing_image = async (req, res) => {
-    const jsonFeed = await getBingImageJsonFeed(req)
+    const jsonFeed = await getBingImageJsonFeed(req.path)
     res.send(jsonFeed)
 }
 
@@ -265,8 +265,7 @@ const get_reddit_landscape_photography = async (req, res) => {
 }
 
 const get_notion_tech = async (req, res) => {
-    const jsonFeed = await getNotionJsonFeed(req)
-
+    const jsonFeed = await getNotionJsonFeed(req.path)
     return res.json(jsonFeed)
 }
 

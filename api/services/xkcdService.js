@@ -1,6 +1,6 @@
 import { baseURL, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (req) => {
+const getJsonFeed = async (path) => {
     const main_url = 'https://xkcd.com/info.0.json'
     let item = {}
 
@@ -47,7 +47,7 @@ const getJsonFeed = async (req) => {
     const updatesObj = {
         title: 'xkcd',
         home_page_url: 'https://xkcd.com',
-        feed_url: `${baseURL}${req.route.path}`,
+        feed_url: `${baseURL}${path}`,
         // authors: [{ name: 'Randall Munroe', url: 'https://xkcd.com/about/' }],
         description: 'A webcomic of romance, sarcasm, math, and language.',
         icon: baseURL + '/static/xkcd_icon.png',

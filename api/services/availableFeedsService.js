@@ -1,8 +1,6 @@
 import { baseURL } from '../utils.js'
 
-const getJsonFeed = async (req) => {
-    const from = req.query.from
-
+const getJsonFeed = async () => {
     const url_array = [
         '/social/reddit_purdue.json',
         '/social/reddit_programmer_humor.json',

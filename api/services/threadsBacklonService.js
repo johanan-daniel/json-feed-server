@@ -1,6 +1,6 @@
 import { baseURL, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (req) => {
+const getJsonFeed = async (path) => {
     let data = []
     await fetch(
         'https://mastodon.world/api/v1/accounts/112136961701411930/statuses?exclude_replies=true'
@@ -42,7 +42,7 @@ const getJsonFeed = async (req) => {
     const updatesObj = {
         title: 'Dieter Bohn',
         home_page_url: account_info['url'],
-        feed_url: `${baseURL}${req.route.path}`,
+        feed_url: `${baseURL}${path}`,
         authors: [{ name: account_info['display_name'] }],
         description:
             'Working at Google, formerly founded Verge, Android Central, iMore, Windows Central, PreCentral. Enjoyer of puns, protected bike lanes, and typos',

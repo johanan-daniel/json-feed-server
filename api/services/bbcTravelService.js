@@ -1,6 +1,6 @@
 import { baseURL, getObjectFromXML, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (req) => {
+const getJsonFeed = async (path) => {
     const xmlAsObject = (
         await getObjectFromXML('https://www.bbc.com/travel/feed.rss')
     )['data']['rss'].channel
@@ -29,7 +29,7 @@ const getJsonFeed = async (req) => {
     const updatesObj = {
         title: xmlAsObject.title._text,
         home_page_url: xmlAsObject['atom:link']._attributes.href,
-        feed_url: `${baseURL}${req.route.path}`,
+        feed_url: `${baseURL}${path}`,
         description: xmlAsObject.description._text,
         items,
     }

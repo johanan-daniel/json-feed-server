@@ -1,7 +1,7 @@
 import { baseURL, updateJSONWithObject } from '../utils.js'
 import { JSDOM } from 'jsdom'
 
-export const getJsonFeed = async (req) => {
+export const getJsonFeed = async (path) => {
     /**
      * Because Bing is silly, in order to get the description of the image
      * (which for whatever reason can't be directly accessed from their API),
@@ -77,7 +77,7 @@ export const getJsonFeed = async (req) => {
     const updatesObj = {
         title: 'Bing Image of the Day',
         home_page_url: 'https://bing.com',
-        feed_url: `${baseURL}${req.route.path}`,
+        feed_url: `${baseURL}${path}`,
         items,
         icon: baseURL + '/static/bing_icon.png',
         favicon: baseURL + '/static/bing_icon.png',
