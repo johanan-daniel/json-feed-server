@@ -18,6 +18,7 @@ import { getJsonFeed as getBingImageJsonFeed } from './services/bingImageService
 import { getJsonFeed as getRedditPurdueJsonFeed } from './services/redditPurdueService.js'
 import { getJsonFeed as getRedditProgrammerHumorJsonFeed } from './services/redditProgrammerHumor.js'
 import { getJsonFeed as getRedditLandscapePhotoJsonFeed } from './services/redditLandscapePhotoService.js'
+import { getJsonFeed as getDoordashJsonFeed } from './services/doordashService.js'
 
 const getExampleXML = (req, res) => {
     logResponseDetails(req, res)
@@ -190,31 +191,7 @@ const get_notion_tech = async (req, res) => {
 }
 
 const get_doordash_eng = async (req, res) => {
-    // const raw_data = await getObjectFromXML('./api/doordash.xml', 'file')
-    // const raw_data = await getObjectFromXML(
-    //     'https://careersatdoordash.com/feed/'
-    // )
-    let status = 0
-    const raw_data = await fetch('https://careersatdoordash.com/feed/', {
-        headers: {
-            // exactly Postman’s UA
-            'User-Agent': 'PostmanRuntime/7.43.3',
-            Accept: '*/*',
-            'Cache-Control': 'no-cache',
-            'Accept-Encoding': 'gzip, deflate, br',
-            Connection: 'keep-alive',
-            // you can also add a referer if needed:
-            Referer: 'https://careersatdoordash.com/',
-        },
-    }).then((res) => {
-        status = res.status
-        return res.text()
-    })
-    console.log('status', status)
-    fs.writeFileSync('./api/doordash_req.xml', raw_data, 'utf-8')
-    // xml2js(raw_data)
-
-    // console.log(raw_data)
+    const raw_data = getDoordashJsonFeed(req.path)
     res.send(raw_data)
 }
 
