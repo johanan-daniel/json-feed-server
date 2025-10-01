@@ -15,7 +15,8 @@ import { getJsonFeed as getXkcdJsonFeed } from './services/xkcdService.js'
 import { getJsonFeed as getBbcTravelJsonFeed } from './services/bbcTravelService.js'
 import { getJsonFeed as getThreadsBacklonJsonFeed } from './services/threadsBacklonService.js'
 import { getJsonFeed as getBingImageJsonFeed } from './services/bingImageService.js'
-import { getJsonItems as getRedditPurdueJsonFeed } from './services/redditPurdueService.js'
+import { getJsonFeed as getRedditPurdueJsonFeed } from './services/redditPurdueService.js'
+import { getJsonFeed as getRedditProgrammerHumorJsonFeed } from './services/redditProgrammerHumor.js'
 
 const getExampleXML = (req, res) => {
     logResponseDetails(req, res)
@@ -176,33 +177,8 @@ const get_reddit_purdue = async (req, res) => {
 }
 
 const get_reddit_programmer_humor = async (req, res) => {
-    // goes through Google translate because either Reddit or Node isn't playing nice
-    const data = await (
-        await fetch(
-            'https://www-reddit-com.translate.goog/r/ProgrammerHumor/top.json?t=today&limit=5&_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp'
-        )
-    ).json()
-
-    const raw_items = data['data']['children']
-
-    // 15000 or 7000?
-    let items = await parseRedditFeedIntoItems(raw_items, 5500)
-
-    // Removes null items that were skipped in map
-    items = items.filter((item) => item)
-
-    const updatesObj = {
-        title: 'r/ProgrammerHumor',
-        home_page_url: 'https://www.reddit.com/r/ProgrammerHumor',
-        feed_url: `${baseURL}${req.path}`,
-        favicon:
-            'https://www.redditstatic.com/shreddit/assets/favicon/64x64.png',
-        items,
-    }
-
-    const json = updateJSONWithObject(updatesObj)
-
-    res.send(json)
+    const jsonFeed = await getRedditProgrammerHumorJsonFeed(req.path)
+    res.send(jsonFeed)
 }
 
 const get_reddit_f_cars = async (req, res) => {
