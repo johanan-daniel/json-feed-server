@@ -25,7 +25,6 @@ import {
     get_bing_image,
     get_reddit_purdue,
     get_reddit_programmer_humor,
-    get_reddit_f_cars,
     get_reddit_landscape_photography,
     get_notion_tech,
     get_health,
@@ -55,7 +54,6 @@ router.get(
     '/feeds/social/reddit_programmer_humor.json',
     get_reddit_programmer_humor
 )
-router.get('/feeds/social/reddit_f_cars.json', get_reddit_f_cars)
 router.get(
     '/feeds/social/reddit_landscape_photography.json',
     get_reddit_landscape_photography
