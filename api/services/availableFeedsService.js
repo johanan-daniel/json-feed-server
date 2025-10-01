@@ -1,4 +1,6 @@
-const getJsonFeed = async (req, baseURL) => {
+import { baseURL } from '../utils.js'
+
+const getJsonFeed = async (req) => {
     const from = req.query.from
 
     const url_array = [
