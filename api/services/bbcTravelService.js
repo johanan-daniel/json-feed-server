@@ -1,6 +1,6 @@
 import { baseURL, getObjectFromXML, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (path) => {
+export const getJsonFeed = async (path) => {
     const xmlAsObject = (
         await getObjectFromXML('https://www.bbc.com/travel/feed.rss')
     )['data']['rss'].channel
@@ -38,5 +38,3 @@ const getJsonFeed = async (path) => {
     const json = updateJSONWithObject(updatesObj)
     return json
 }
-
-export { getJsonFeed }

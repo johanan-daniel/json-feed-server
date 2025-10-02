@@ -1,6 +1,6 @@
 import { baseURL, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (path) => {
+export const getJsonFeed = async (path) => {
     let data = []
     await fetch(
         'https://mastodon.world/api/v1/accounts/112136961701411930/statuses?exclude_replies=true'
@@ -54,5 +54,3 @@ const getJsonFeed = async (path) => {
 
     return json
 }
-
-export { getJsonFeed }

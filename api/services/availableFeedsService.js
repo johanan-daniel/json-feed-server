@@ -1,6 +1,6 @@
 import { baseURL } from '../utils.js'
 
-const getJsonFeed = async () => {
+export const getJsonFeed = async () => {
     const url_array = [
         '/social/reddit_purdue.json',
         '/social/reddit_programmer_humor.json',
@@ -28,5 +28,3 @@ const getJsonFeed = async () => {
 
     return output
 }
-
-export { getJsonFeed }

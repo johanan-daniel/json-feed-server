@@ -1,6 +1,6 @@
 import { baseURL, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (path) => {
+export const getJsonFeed = async (path) => {
     const main_url = 'https://xkcd.com/info.0.json'
     let item = {}
 
@@ -57,5 +57,3 @@ const getJsonFeed = async (path) => {
     const json = updateJSONWithObject(updatesObj)
     return json
 }
-
-export { getJsonFeed }
