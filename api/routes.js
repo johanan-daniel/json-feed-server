@@ -6,7 +6,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import {
-    getExampleXML,
     getHome,
     getBBC_JSON,
     // getGoodWorkJSON,
@@ -25,7 +24,6 @@ import {
     get_bing_image,
     get_reddit_purdue,
     get_reddit_programmer_humor,
-    get_reddit_f_cars,
     get_reddit_landscape_photography,
     get_notion_tech,
     get_health,
@@ -43,7 +41,6 @@ const __dirname = path.dirname(__filename)
 const static_path = path.join(__dirname, '../assets/public')
 router.use('/static', express.static(static_path))
 
-router.get('/feeds/example.json', check_params, getExampleXML)
 router.get('/', getHome)
 router.get('/feeds', getAvailableFeeds)
 router.get('/health', get_health)
@@ -55,7 +52,6 @@ router.get(
     '/feeds/social/reddit_programmer_humor.json',
     get_reddit_programmer_humor
 )
-router.get('/feeds/social/reddit_f_cars.json', get_reddit_f_cars)
 router.get(
     '/feeds/social/reddit_landscape_photography.json',
     get_reddit_landscape_photography
