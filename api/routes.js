@@ -6,7 +6,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import {
-    getExampleXML,
     getHome,
     getBBC_JSON,
     // getGoodWorkJSON,
@@ -42,7 +41,6 @@ const __dirname = path.dirname(__filename)
 const static_path = path.join(__dirname, '../assets/public')
 router.use('/static', express.static(static_path))
 
-router.get('/feeds/example.json', check_params, getExampleXML)
 router.get('/', getHome)
 router.get('/feeds', getAvailableFeeds)
 router.get('/health', get_health)

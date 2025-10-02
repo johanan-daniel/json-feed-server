@@ -1,5 +1,3 @@
-import { jsonTemplate, logResponseDetails } from './utils.js'
-// import { xml2js } from 'xml-js'
 import { getJsonFeed as getNotionJsonFeed } from './services/notionService.js'
 import { getJsonFeed as getAvailableFeedsJsonFeed } from './services/availableFeedsService.js'
 import { getJsonFeed as getXkcdJsonFeed } from './services/xkcdService.js'
@@ -12,11 +10,6 @@ import { getJsonFeed as getRedditLandscapePhotoJsonFeed } from './services/reddi
 import { getJsonFeed as getDoordashJsonFeed } from './services/doordashService.js'
 import { getJsonFeed as getTimelessArticlesJsonFeed } from './services/timelessArticlesService.js'
 import { getJsonFeed as getTomScottJsonFeed } from './services/tomScottService.js'
-
-const getExampleXML = (req, res) => {
-    logResponseDetails(req, res)
-    return res.send(jsonTemplate)
-}
 
 const getHome = (_, res) => {
     return res.send('<p>hello there</p>')
@@ -93,7 +86,6 @@ const get_doordash_eng = async (req, res) => {
 }
 
 export {
-    getExampleXML,
     getHome,
     get_404,
     get_health,
