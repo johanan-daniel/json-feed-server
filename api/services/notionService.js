@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { baseURL, updateJSONWithObject } from '../utils.js'
 
-const getJsonFeed = async (req) => {
+const getJsonFeed = async (path) => {
     const posts = await getPosts()
 
     const items = posts.map((post) => {
@@ -19,8 +19,7 @@ const getJsonFeed = async (req) => {
     const updatesObj = {
         title: 'Notion Engineering Blog',
         home_page_url: 'https://www.notion.com/blog/topic/tech',
-        feed_url: `${baseURL}${req.route.path}`,
-        // authors: [{ name: 'Randall Munroe', url: 'https://xkcd.com/about/' }],
+        feed_url: `${baseURL}${path}`,
         description: 'Notion Engineering Blog',
         icon: baseURL + '/static/xkcd_icon.png',
         favicon: baseURL + '/static/xkcd_icon_64.png',
