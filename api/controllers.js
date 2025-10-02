@@ -1,11 +1,8 @@
-import fs from 'fs'
-
 import {
     jsonTemplate,
     logResponseDetails,
     getObjectFromXML,
     updateJSONWithObject,
-    parseRedditFeedIntoItems,
     baseURL,
 } from './utils.js'
 // import { xml2js } from 'xml-js'
@@ -19,13 +16,14 @@ import { getJsonFeed as getRedditPurdueJsonFeed } from './services/redditPurdueS
 import { getJsonFeed as getRedditProgrammerHumorJsonFeed } from './services/redditProgrammerHumor.js'
 import { getJsonFeed as getRedditLandscapePhotoJsonFeed } from './services/redditLandscapePhotoService.js'
 import { getJsonFeed as getDoordashJsonFeed } from './services/doordashService.js'
+import { getJsonFeed as getTimelessArticlesJsonFeed } from './services/timelessArticlesService.js'
 
 const getExampleXML = (req, res) => {
     logResponseDetails(req, res)
     return res.send(jsonTemplate)
 }
 
-const getHome = (req, res) => {
+const getHome = (_, res) => {
     return res.send('<p>hello there</p>')
 }
 
@@ -35,11 +33,11 @@ const get_404 = async (_, res) => {
     )
 }
 
-const get_health = (req, res) => {
+const get_health = (_, res) => {
     return res.status(200).send('OK')
 }
 
-const getAvailableFeeds = async (req, res) => {
+const getAvailableFeeds = async (_, res) => {
     const output = await getAvailableFeedsJsonFeed()
     res.send(output)
 }
@@ -50,41 +48,8 @@ const getBBC_JSON = async (req, res) => {
 }
 
 const getTimelessArticles = async (req, res) => {
-    let data
-
-    try {
-        data = fs.readFileSync('./assets/articles_sorted_by_date.json', 'utf8')
-    } catch (err) {
-        console.log('Error reading file', err)
-    }
-
-    const json_data = JSON.parse(data.toString())
-
-    const items = json_data.results.map((item) => {
-        return {
-            title: item.title,
-            url: item.url,
-            external_url: item.url,
-            authors: [{ name: item.author_name }],
-            id: item.url,
-            summary: item.title,
-            date_published: item.publication_date,
-            content_text: item.title,
-            content_html: `<p>${item.title}</p>`,
-            image: item.screenshot,
-        }
-    })
-
-    const updatesObj = {
-        title: 'Timeless Articles',
-        home_page_url: 'https://readsomethingwonderful.com',
-        feed_url: `${baseURL}${req.route.path}`,
-        description: 'Some articles people like apparently',
-        items,
-    }
-    const json = updateJSONWithObject(updatesObj)
-    // logResponseDetails(req, res)
-    return res.send(json)
+    const jsonFeed = await getTimelessArticlesJsonFeed(req.path)
+    return res.send(jsonFeed)
 }
 
 const get_xkcd = async (req, res) => {
@@ -104,19 +69,6 @@ const get_bing_image = async (req, res) => {
 
 const get_tom_scott = async (req, res) => {
     let data = []
-
-    if (req.path.split('.').pop() == 'rss') {
-        let raw_xml
-        try {
-            raw_xml = fs.readFileSync('./api/asdf.xml', 'utf8')
-        } catch (err) {
-            console.log('Error reading file', err)
-            return res.status(500).send('Error reading file')
-        }
-
-        res.set('Content-Type', 'application/xml')
-        return res.send(raw_xml)
-    }
 
     try {
         const xmlAsObject = await getObjectFromXML(
@@ -191,7 +143,7 @@ const get_notion_tech = async (req, res) => {
 }
 
 const get_doordash_eng = async (req, res) => {
-    const raw_data = getDoordashJsonFeed(req.path)
+    const raw_data = await getDoordashJsonFeed(req.path)
     res.send(raw_data)
 }
 
