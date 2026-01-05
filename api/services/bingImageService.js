@@ -9,7 +9,7 @@ export const getJsonFeed = async (path) => {
      * webpage is rendered into HTML.
      * Then it parses the HTML like normal and gets the description.
      */
-    const url = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1'
+    const url = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&cc=us'
     const local_base_url = 'https://bing.com/'
     const response = await fetch(url)
     const data = await response.json()
