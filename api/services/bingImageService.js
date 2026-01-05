@@ -8,8 +8,11 @@ export const getJsonFeed = async (path) => {
      * this fetches the Bing webpage through Google Translate so the dynamic
      * webpage is rendered into HTML.
      * Then it parses the HTML like normal and gets the description.
+     *
+     * Also here's this: https://www.bing.com/hp/api/v1/imagegallery
      */
-    const url = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&cc=us'
+    const url =
+        'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&cc=us'
     const local_base_url = 'https://bing.com/'
     const response = await fetch(url)
     const data = await response.json()
