@@ -2,6 +2,7 @@
 *.env
 *node_modules
 *.vscode
+*.idea
 node_modules/
 /test-results/
 /playwright-report/

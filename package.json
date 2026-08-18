@@ -9,13 +9,14 @@
     "scripts": {
         "start": "node ./api/index.js",
         "dev": "nodemon ./api/index.js",
-        "test": "node test.js",
+        "test": "NODE_OPTIONS=--experimental-vm-modules jest ./tests/services/theAtlanticService.test.js",
         "deploy": "fly deploy"
     },
     "type": "module",
     "devDependencies": {
         "@types/jsdom": "^21.1.7",
         "@types/node": "^22.5.1",
+        "jest": "^30.1.3",
         "typescript": "^5.5.4"
     }
 }
