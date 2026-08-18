@@ -1,61 +1,63 @@
-import { baseURL, getObjectFromXML, updateJSONWithObject } from '../utils.js'
+import { XMLParser } from 'fast-xml-parser'
+import { baseURL, updateJSONWithObject } from '../utils.js'
+
+const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '@_',
+})
 
 export const getJsonFeed = async (path) => {
     const rss_url = 'https://www.theatlantic.com/feed/all/'
-    let item = {}
 
-    const xmlAsObject = (
-        await getObjectFromXML('https://www.bbc.com/travel/feed.rss')
-    )['data']['rss'].channel
+    const res = await fetch(rss_url)
+    const xml = await res.text()
 
-    return xmlAsObject
+    const feed = parser.parse(xml).feed
 
-    // let lastItem = item.num
+    // fast-xml-parser collapses a single occurrence into an object
+    const entries = [].concat(feed.entry ?? [])
+    const feedLinks = [].concat(feed.link ?? [])
 
-    // let items = [item]
+    const items = entries.map((entry) => {
+        const url = [].concat(entry.link ?? []).find(
+            (link) => link['@_rel'] === 'alternate'
+        )?.['@_href']
+        const summary = entry.summary?.['#text'] ?? entry.summary ?? ''
+        const content = entry.content?.['#text'] ?? entry.content ?? ''
+        const date = new Date(entry.published ?? entry.updated)
+        const authors = [].concat(entry.author ?? []).map((author) => ({
+            name: author.name,
+            url: author.uri,
+        }))
 
-    // for (let i = 0; i < 9; i++) {
-    //     lastItem -= 1
-    //     await fetch(`https://xkcd.com/${lastItem}/info.0.json`)
-    //         .then((res) => res.json())
-    //         .then((json) => (item = json))
+        const item = {
+            title: entry.title?.['#text'] ?? entry.title,
+            url,
+            external_url: url,
+            id: entry.id ?? url,
+            summary,
+            date_published: date.toISOString(),
+            content_text: summary,
+            content_html: content || `<p>${summary}</p>`,
+            image: entry['media:content']?.['@_url'],
+        }
 
-    //     items.push(item)
-    // }
+        if (authors.length) {
+            item.authors = authors
+        }
 
-    // items = items.map((item) => {
-    //     const date = new Date(item.year, item.month - 1, item.day, 4)
+        return item
+    })
 
-    //     const news = item.news
+    const updatesObj = {
+        title: feed.title?.['#text'] ?? feed.title,
+        home_page_url: feedLinks.find((link) => link['@_rel'] === 'alternate')?.[
+            '@_href'
+        ],
+        feed_url: `${baseURL}${path}`,
+        description: feed.subtitle?.['#text'] ?? `${feed.title} feed`,
+        items,
+    }
 
-    //     const object = {
-    //         title: item.title,
-    //         url: `https://xkcd.com/${item.num}`,
-    //         id: `https://xkcd.com/${item.num}`,
-    //         summary: item.alt,
-    //         date_published: date.toISOString(),
-    //         content_html: `<div><img src=${item.img} /><p>${item.alt}</p>
-    //   <a href="https://www.explainxkcd.com/${item.num}">Explanation</a><p>${news}</p></div>`,
-    //         image: item.img,
-    //     }
-
-    //     if (item.link) {
-    //         object['external_url'] = item.link
-    //     }
-
-    //     return object
-    // })
-
-    // const updatesObj = {
-    //     title: 'xkcd',
-    //     home_page_url: 'https://xkcd.com',
-    //     feed_url: `${baseURL}${path}`,
-    //     // authors: [{ name: 'Randall Munroe', url: 'https://xkcd.com/about/' }],
-    //     description: 'A webcomic of romance, sarcasm, math, and language.',
-    //     icon: baseURL + '/static/xkcd_icon.png',
-    //     favicon: baseURL + '/static/xkcd_icon_64.png',
-    //     items,
-    // }
-    // const json = updateJSONWithObject(updatesObj)
-    // return json
+    return updateJSONWithObject(updatesObj)
 }
