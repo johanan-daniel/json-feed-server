@@ -60,20 +60,20 @@ const get_tom_scott = async (req, res) => {
     res.send(jsonFeed)
 }
 
-const get_reddit_purdue = async (req, res) => {
-    const jsonFeed = await getRedditPurdueJsonFeed(req.path)
-    res.send(jsonFeed)
-}
+// const get_reddit_purdue = async (req, res) => {
+//     const jsonFeed = await getRedditPurdueJsonFeed(req.path)
+//     res.send(jsonFeed)
+// }
 
-const get_reddit_programmer_humor = async (req, res) => {
-    const jsonFeed = await getRedditProgrammerHumorJsonFeed(req.path)
-    res.send(jsonFeed)
-}
+// const get_reddit_programmer_humor = async (req, res) => {
+//     const jsonFeed = await getRedditProgrammerHumorJsonFeed(req.path)
+//     res.send(jsonFeed)
+// }
 
-const get_reddit_landscape_photography = async (req, res) => {
-    const jsonFeed = await getRedditLandscapePhotoJsonFeed(req.path)
-    res.send(jsonFeed)
-}
+// const get_reddit_landscape_photography = async (req, res) => {
+//     const jsonFeed = await getRedditLandscapePhotoJsonFeed(req.path)
+//     res.send(jsonFeed)
+// }
 
 const get_notion_tech = async (req, res) => {
     const jsonFeed = await getNotionJsonFeed(req.path)
@@ -96,9 +96,9 @@ export {
     get_backlon_threads,
     get_bing_image,
     get_tom_scott,
-    get_reddit_purdue,
-    get_reddit_programmer_humor,
-    get_reddit_landscape_photography,
+    // get_reddit_purdue,
+    // get_reddit_programmer_humor,
+    // get_reddit_landscape_photography,
     get_notion_tech,
     get_doordash_eng,
 }

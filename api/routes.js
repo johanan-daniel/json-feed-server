@@ -22,9 +22,9 @@ import {
     get_backlon_threads,
     get_tom_scott,
     get_bing_image,
-    get_reddit_purdue,
-    get_reddit_programmer_humor,
-    get_reddit_landscape_photography,
+    // get_reddit_purdue,
+    // get_reddit_programmer_humor,
+    // get_reddit_landscape_photography,
     get_notion_tech,
     get_health,
     get_doordash_eng,
@@ -46,19 +46,19 @@ router.get('/feeds', getAvailableFeeds)
 router.get('/health', get_health)
 
 // social
-router.get('/feeds/social/backlon.json', get_backlon_threads)
-router.get('/feeds/social/reddit_purdue.json', get_reddit_purdue)
-router.get(
-    '/feeds/social/reddit_programmer_humor.json',
-    get_reddit_programmer_humor
-)
-router.get(
-    '/feeds/social/reddit_landscape_photography.json',
-    get_reddit_landscape_photography
-)
+// router.get('/feeds/social/backlon.json', get_backlon_threads)
+// router.get('/feeds/social/reddit_purdue.json', get_reddit_purdue)
+// router.get(
+//     '/feeds/social/reddit_programmer_humor.json',
+//     get_reddit_programmer_humor
+// )
+// router.get(
+//     '/feeds/social/reddit_landscape_photography.json',
+//     get_reddit_landscape_photography
+// )
 
 // articles
-router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)
+// router.get('/feeds/articles/bbc_travel.json', check_params, getBBC_JSON)
 router.get(
     '/feeds/articles/timeless_articles.json',
     check_params,
